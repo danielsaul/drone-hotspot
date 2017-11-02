@@ -1,13 +1,36 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
+import SocketIOClient from 'socket.io-client';
+
 
 export default class App extends React.Component {
+  
+constructor(props) {
+    super(props);
+    this.state = {
+      test: null
+    };
+
+    this.onReceivedTest = this.onReceivedTest.bind(this);
+
+    this.socket = SocketIOClient('http://localhost:3000');
+    this.socket.on('test', this.onReceivedTest);
+  }
+
+  onReceivedTest(test) {
+    this.setState((previousState) => {
+      return {
+        test: test,
+      };
+    });
+  }
+
   render() {
     
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Drone Hotspot</Text>
-        <Text>Yay</Text>
+        <Text>{this.state.test}</Text>
       </View>
     );
   }
