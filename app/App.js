@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import SocketIOClient from 'socket.io-client';
+import io from 'socket.io-client';
 
 
 export default class App extends React.Component {
@@ -13,7 +13,7 @@ constructor(props) {
 
     this.onReceivedTest = this.onReceivedTest.bind(this);
 
-    this.socket = SocketIOClient('http://localhost:3000');
+    this.socket = io(`http://localhost:8080` , { transports: ['websocket'] });
     this.socket.on('test', this.onReceivedTest);
   }
 
