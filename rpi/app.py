@@ -17,12 +17,12 @@ async def background_task():
         count += 1
         await sio.emit('test', str(count))
 
-@sio.on('disconnect', namespace='/test')
-def test_disconnect(sid):
-    print('Client disconnected')
+@sio.on('test_send')
+def test_send(sid, data):
+    print('Button pressed')
 
 
 
 if __name__ == '__main__':
-    sio.start_background_task(background_task)
+    #sio.start_background_task(background_task)
     web.run_app(app, host='127.0.0.1', port=8080)

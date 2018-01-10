@@ -1,7 +1,5 @@
 {
   "expo": {
-    "sdkVersion": "21.0.0"
-  },
-  "name" : "drone-hotspot",
-  "displayName": "Drone Hotspot"
+    "sdkVersion": "22.0.0"
+  }
 }

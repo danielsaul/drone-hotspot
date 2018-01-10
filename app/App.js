@@ -1,19 +1,20 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { Alert, StyleSheet, Text, View, Image, Button } from 'react-native';
 import io from 'socket.io-client';
 
 
 export default class App extends React.Component {
   
-constructor(props) {
+  constructor(props) {
     super(props);
     this.state = {
-      test: null
+      test: null,
     };
 
     this.onReceivedTest = this.onReceivedTest.bind(this);
+    this.onSendTest = this.onSendTest.bind(this);
 
-    this.socket = io(`http://localhost:8080` , { transports: ['websocket'] });
+    this.socket = io.connect(`http://localhost:8080` , { transports: ['websocket'] });
     this.socket.on('test', this.onReceivedTest);
   }
 
@@ -25,15 +26,25 @@ constructor(props) {
     });
   }
 
+  onSendTest() {
+    this.socket.emit('test_send', 'bla');
+  }
+
   render() {
     
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Drone Hotspot</Text>
         <Text>{this.state.test}</Text>
+        <Button
+          onPress={this.onSendTest}
+          title="Test Btn"
+          />
       </View>
     );
+
   }
+
 }
 
 const styles = StyleSheet.create({
