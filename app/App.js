@@ -1,63 +1,46 @@
-import React from 'react';
-import { Alert, StyleSheet, Text, View, Image, Button } from 'react-native';
+import React, { Component } from 'react';
+import { AppRegistry, View } from 'react-native';
+import { Provider, connect } from 'react-redux';
+import { Font, AppLoading } from 'expo';
+import store from './redux/store';
+import Router from './config/routes';
 import io from 'socket.io-client';
 
 
-export default class App extends React.Component {
+export default class App extends Component {
   
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
-      test: null,
+      isReady: false,
     };
 
-    this.onReceivedTest = this.onReceivedTest.bind(this);
-    this.onSendTest = this.onSendTest.bind(this);
-
-    this.socket = io.connect(`http://localhost:8080` , { transports: ['websocket'] });
-    this.socket.on('test', this.onReceivedTest);
+    //this.onReceivedTest = this.onReceivedTest.bind(this);
+    //this.onSendTest = this.onSendTest.bind(this);
+    //this.socket = io.connect(`http://localhost:8080` , { transports: ['websocket'] });
+    //this.socket.on('test', this.onReceivedTest);
   }
 
-  onReceivedTest(test) {
-    this.setState((previousState) => {
-      return {
-        test: test,
-      };
+  async componentWillMount() {
+    await Font.loadAsync({
+      'Roboto': require('native-base/Fonts/Roboto.ttf'),
+      'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+      'Ionicons': require('native-base/Fonts/Ionicons.ttf'),
     });
+    this.setState({isReady: true});
   }
 
-  onSendTest() {
-    this.socket.emit('test_send', 'bla');
-  }
 
   render() {
-    
+    if(!this.state.isReady){
+      return <AppLoading />;
+    }
     return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Drone Hotspot</Text>
-        <Text>{this.state.test}</Text>
-        <Button
-          onPress={this.onSendTest}
-          title="Test Btn"
-          />
-      </View>
+      <Provider store={store}>
+        <Router />
+      </Provider>
     );
-
   }
 
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#004066',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    flexDirection: 'column',
-  },
-  text: {
-        color: 'white',
-        fontSize: 30,
-        padding: 20,
-  }
-});
