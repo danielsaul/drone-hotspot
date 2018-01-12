@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#Add "sudo sh /etc/init.d/CustomNetworkConfig.sh" to /etc/rc.local
 chmod 755 /etc/init.d/CustomNetworkConfig.sh
 chmod a+x /etc/init.d/CustomNetworkConfig.sh
 chmod 777 /etc/init.d/CustomNetworkConfig.sh
