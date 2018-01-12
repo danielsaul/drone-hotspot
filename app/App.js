@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { AppRegistry, View } from 'react-native';
 import { Provider, connect } from 'react-redux';
 import { Font, AppLoading } from 'expo';
-import store from './redux/store';
-import Router from './config/routes';
+import store from './store';
+import Router from './routes';
 import io from 'socket.io-client';
 
 
