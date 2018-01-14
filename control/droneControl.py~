@@ -92,7 +92,7 @@ if __name__ == '__main__':
     drone.getNDpackage(["demo"])
     time.sleep(1.0)
 
-    # Create gps thread
+    # Create gps thread
     gpsp = GpsPoller()
     gpsp.start()
 
