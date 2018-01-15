@@ -15,3 +15,6 @@ sudo service dhcpcd restart
 sleep 10
 sudo service dnsmasq start
 sudo sed -i '/^#.*denyinterfaces /s/^#//' /etc/dhcpcd.conf
+
+sudo killall gpsd
+sudo gpsd /dev/ttyS0 -F /var/run/gpsd.sock
