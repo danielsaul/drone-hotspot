@@ -6,19 +6,14 @@ from time import *
 import time, sys
 import threading
 from math import *
-import gpsdData
-from gpsdData import *
 import ps_drone
 
-import os
-from gps import *
-from time import *
-import time
-import threading
-
-gpsd = None  # seting the global variable
+sys.path.insert(0, '/home/pi/drone-hotspot/hardware')
+# import signalStrength
 
 os.system('clear')  # clear the terminal (optional)
+
+gpsd = None  # seting the global variable
 
 class GpsPoller(threading.Thread):
     def __init__(self):
@@ -31,7 +26,7 @@ class GpsPoller(threading.Thread):
     def run(self):
         global gpsd
         while gpsp.running:
-            gpsd.next()
+            gpsd.next()  # this will continue to loop and grab EACH set of gpsd info to clear the buffer
 
 
 def haversine(lon1, lat1, lon2, lat2):
@@ -46,8 +41,7 @@ def haversine(lon1, lat1, lon2, lat2):
     r = 6371  # Radius of earth in kilometers. Use 3956 for miles
 
     # return the distance between 2 GPS coordinates
-    return c * r
-
+    return c * r * 1000
 
 def gpsBearing(lon1, lat1, lon2, lat2):
     # convert decimal degrees to radians
@@ -69,29 +63,20 @@ def gpsBearing(lon1, lat1, lon2, lat2):
     return compass_bearing
 
 
-def flightController(drone, flight_distance, flight_bearing):
+def flightController(drone, flight_bearing, drone_speed):
     # Retrieve Drone NavData
     NDC = drone.NavDataCount
     while drone.NavDataCount == NDC: time.sleep(0.001)
-    aptitude = drone.NavData["demo"][2]  # Pitch/Roll/Yaw
-    # flightTime = flight_distance / (droneSpeed * 5)
 
-    # Rotate the drone to the flight direction
-    drone_yaw = aptitude[2]
-
-    print"Drone turn angle: " + str(drone_yaw)
-    while abs(flight_bearing - drone_yaw) >= 1 :
-	drone_yaw = drone.NavData["demo"][2][2]
-	print"Drone turn angle: " + str(drone_yaw)
-
-	turning_angle = flight_bearing - drone_yaw	
-        if turning_angle > 180:
-            turning_angle = turning_angle - 360
-        print "Turning angle: " + str(turning_angle)
-        drone.turnAngle(turning_angle, 1, 1)
-
-    # drone.moveForward()
-
+    drone_yaw = drone.NavData["demo"][2][2]
+    print "drone angle" , drone_yaw
+    turning_angle = flight_bearing - drone_yaw
+    if turning_angle > 180:
+        turning_angle = turning_angle - 360
+    print "turning angle" , turning_angle
+    # drone.turnAngle(turning_angle, 1, 1)
+    drone.move(0.0,drone_speed,0.0,turning_angle)
+    print "moving..."
 
 if __name__ == '__main__':
     # Drone startup sequence
@@ -103,48 +88,51 @@ if __name__ == '__main__':
     drone.useDemoMode(False)
     drone.getNDpackage(["demo"])
     time.sleep(1.0)
-
+    
     # Create gps thread
     gpsp = GpsPoller()
     gpsp.start()
 
     try:
         # os.system('clear')
-
         # Start flight sequence
+        while gpsd.fix.latitude == 0 or gpsd.fix.longitude == 0 or \
+              isnan(gpsd.fix.latitude) or isnan(gpsd.fix.longitude):
+            time.sleep(0.1)
+            print "Waiting for GPS fix"
 
         drone.takeoff()
         while drone.NavData["demo"][0][2]:  time.sleep(0.1)
 
-        flightTime = 1
+        flightTime = 2.5
         refTime = time.time()
         flightEnd = False
 
         # Assume the drone max speed is 5m/s
-        droneSpeed = 1 / 5  # set to 1m/s
+        droneSpeed = 1 / 5
         drone.setSpeed(droneSpeed)
 
         while not flightEnd:
             # Receive Destination GPS Coordinates
-            destinationLat = 51.52663
-            destinationLon = -0.13863 + 1
+            destinationLat = 0
+            destinationLon = 0
 
             # Receive Current GPS Coordinates
-            # currentLat = gpsd.fix.latitude
-            # currentLon = gpsd.fix.longitude
-            currentLat = 51.52663
-            currentLon = -0.13863
+            currentLat = gpsd.fix.latitude
+            currentLon = gpsd.fix.longitude
+            if isnan(currentLat) or isnan(currentLon):
+                print "waiting for coordinate"
+                drone.stop()
 
             # Compute actual distance and direction
             flightDistance = haversine(currentLon, currentLat, destinationLon, destinationLat)
             print "Flight distance: " + str(flightDistance)
             flightBearing = gpsBearing(currentLon, currentLat, destinationLon, destinationLat)
             print "Flight bearing: " + str(flightBearing)
-            flightController(drone, flightDistance, flightBearing)
-
-            if flightDistance <= 10: flightEnd = True
-            elif drone.getKey(): flightEnd = True
-            elif time.time()-refTime>=flightTime: end=True
+            
+            flightController(drone, flightBearing, droneSpeed)
+            if abs(flightDistance) <= 1 or drone.getKey() or time.time() - refTime >= flightTime:
+                flightEnd = True
 
         drone.stop()
         drone.land()
