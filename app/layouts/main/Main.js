@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {
   Header,
+  Footer,
   Container,
   Content,
   Icon,
@@ -16,6 +17,7 @@ import { MapView } from 'expo';
 import MainHeader from '../../components/MainHeader'
 import ConnectionStatus from '../../components/ConnectionStatus'
 import SignalStatus from '../../components/SignalStatus'
+import FlightButtons from '../../components/FlightButtons'
 
 import styles from './styles';
 
@@ -63,6 +65,9 @@ class Main extends Component{
           </Segment>
 
         </Content>
+        <Footer>
+          <FlightButtons />
+        </Footer>
       </Container>
     );
   }
