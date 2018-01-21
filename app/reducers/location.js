@@ -1,6 +1,6 @@
 import { Actions } from 'react-native-router-flux';
 
-const initialLocation = { location: { latitude: 0.0, longitude: 0.0 } }
+const initialLocation = { latitude: 0.0, longitude: 0.0 }
 
 export const UPDATE_LOCATION = 'UPDATE_LOCATION';
 
