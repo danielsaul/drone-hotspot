@@ -49,7 +49,7 @@ class Main extends Component{
         <MainHeader />
         <Content>
           <View style={{flex: 1}}>
-            <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 300 }} />
+            <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 250 }} />
           </View>
 
           <ConnectionStatus status={false} />
@@ -66,7 +66,7 @@ class Main extends Component{
 
         </Content>
         <Footer>
-          <FlightButtons />
+          <FlightButtons inFlight={true} onPress={{takeOff: null, land: null, return: null, abort: null}}/>
         </Footer>
       </Container>
     );

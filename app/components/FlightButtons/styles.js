@@ -16,6 +16,12 @@ export default {
     justifyContent: 'center'
   },
 
+  disabled: {
+    backgroundColor: '#AAAAAA',
+    borderColor: '#CCCCCC',
+    borderRightWidth: 0.5,
+  },
+
   land: {
     width: '40%',
     height: '100%',
@@ -36,7 +42,6 @@ export default {
   takeoff: {
     width: '100%',
     height: '100%',
-    display: 'none',
   },
 
 };
