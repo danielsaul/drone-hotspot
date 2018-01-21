@@ -11,8 +11,11 @@ import {
 import { View } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
-import MainHeader from '../../components/MainHeader'
 import { MapView } from 'expo';
+
+import MainHeader from '../../components/MainHeader'
+import ConnectionStatus from '../../components/ConnectionStatus'
+import SignalStatus from '../../components/SignalStatus'
 
 import styles from './styles';
 
@@ -22,19 +25,20 @@ const mapDispatchToProps = {};
 class Main extends Component{
   constructor(){
     super();
-    this.state = {}
-  }
+    this.state = {};
 
-  componentWillReceiveProps(props) {
-    if (!('map_region' in this.state)){
-      map_region = {
-        latitude: props.location.latitude,
-        longitude: props.location.longitude,
-        latitudeDelta: 0.001,
-        longitudeDelta: 0.001,
-      };
-      this.setState({map_region});
-    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        map_region = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
+        }
+        this.setState({map_region})
+      }
+    )
+
   }
 
   render(){
@@ -45,15 +49,9 @@ class Main extends Component{
           <View style={{flex: 1}}>
             <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 300 }} />
           </View>
-          <View style={{flex: 1}}>
-            <Text style={styles.centered}>
-            <Text style={styles.label}>Your Location:</Text> {this.props.location.latitude.toFixed(5)}, {this.props.location.longitude.toFixed(5)}
-            </Text>
-          </View>
 
-          <View style={styles.connectionstatus_view}>
-            <Text style={styles.connectionstatus_txt}><Icon name='ios-plane' style={{fontSize: 15}} /> Drone Connected </Text>
-          </View>
+          <ConnectionStatus status={false} />
+          <SignalStatus status={0} />
 
           <Segment>
           <Button first active>

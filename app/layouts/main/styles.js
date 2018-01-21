@@ -7,8 +7,4 @@ export default{
     textAlign: 'center'
   },
 
-  connectionstatus_txt: {
-    textAlign: 'center',
-  }
-
 }
