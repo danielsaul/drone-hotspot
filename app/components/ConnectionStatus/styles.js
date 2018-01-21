@@ -1,7 +1,7 @@
 export default {
 
   connectionstatus_view: {
-    backgroundColor: 'red',
+    backgroundColor: '#d9534f',
     padding: 5,
     flexDirection: 'row',
     alignItems: 'center',
