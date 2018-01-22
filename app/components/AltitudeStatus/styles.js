@@ -1,6 +1,6 @@
 export default {
 
-  signalstatus_view: {
+  altitudestatus_view: {
     flex: 1,
     backgroundColor: '#535354',
     padding: 5,
@@ -8,6 +8,7 @@ export default {
     alignItems: 'center',
     justifyContent: 'center',
     borderRightWidth: 0.5,
+    borderTopWidth: 0.5,
     borderColor: '#707070',
   },
 
@@ -15,12 +16,12 @@ export default {
     backgroundColor: 'grey',
   },
 
-  signalstatus_txt: {
+  altitudestatus_txt: {
     textAlign: 'center',
     color: 'white',
   },
 
-  signalstatus_icon: {
+  altitudestatus_icon: {
     color: 'white',
     fontSize: 14,
     justifyContent: 'center'

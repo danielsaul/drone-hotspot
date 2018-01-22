@@ -9,9 +9,9 @@ import styles from './styles';
 
 export default (props) => (
 
-  <View style={[styles.signalstatus_view,]}>
-    <Icon name='ios-radio-outline' style={styles.signalstatus_icon} />
-    <Text style={styles.signalstatus_txt}> 4G Signal: {props.status}
+  <View style={[styles.batterystatus_view,]}>
+    <Icon name='ios-battery-dead' style={styles.batterystatus_icon} />
+    <Text style={styles.batterystatus_txt}> Battery: {props.status}%
     </Text>
   </View>
 

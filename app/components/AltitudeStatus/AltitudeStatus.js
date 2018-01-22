@@ -9,9 +9,9 @@ import styles from './styles';
 
 export default (props) => (
 
-  <View style={[styles.signalstatus_view,]}>
-    <Icon name='ios-radio-outline' style={styles.signalstatus_icon} />
-    <Text style={styles.signalstatus_txt}> 4G Signal: {props.status}
+  <View style={[styles.altitudestatus_view,]}>
+    <Icon name='ios-trending-up' style={styles.altitudestatus_icon} />
+    <Text style={styles.altitudestatus_txt}> Altitude: {props.status}m
     </Text>
   </View>
 

@@ -17,6 +17,11 @@ export default{
   modeButtonTxt: {
     paddingLeft: 0,
     paddingRight: 0,
+  },
+
+  twocol: {
+    justifyContent: 'center',
+    flexDirection: 'row',
   }
 
 }

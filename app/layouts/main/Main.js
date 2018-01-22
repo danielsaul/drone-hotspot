@@ -17,6 +17,10 @@ import { MapView } from 'expo';
 import MainHeader from '../../components/MainHeader'
 import ConnectionStatus from '../../components/ConnectionStatus'
 import SignalStatus from '../../components/SignalStatus'
+import BatteryStatus from '../../components/BatteryStatus'
+import AltitudeStatus from '../../components/AltitudeStatus'
+import DistanceStatus from '../../components/DistanceStatus'
+import SpeedStatus from '../../components/SpeedStatus'
 import FlightButtons from '../../components/FlightButtons'
 
 import styles from './styles';
@@ -52,8 +56,18 @@ class Main extends Component{
             <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 250 }} />
           </View>
 
-          <ConnectionStatus status={false} />
-          <SignalStatus status={0} />
+          <View style={styles.twocol}>
+            <ConnectionStatus status={false} />
+            <SignalStatus status={0} />
+          </View>
+          <View style={styles.twocol}>
+            <AltitudeStatus status={0} />
+            <BatteryStatus status={0} />
+          </View>
+          <View style={styles.twocol}>
+            <DistanceStatus status={0} />
+            <SpeedStatus status={0} />
+          </View>
 
           <Segment>
           <Button first active style={styles.modeButton}>
