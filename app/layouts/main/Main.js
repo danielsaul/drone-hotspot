@@ -56,11 +56,14 @@ class Main extends Component{
           <SignalStatus status={0} />
 
           <Segment>
-          <Button first active>
-            <Text>Fly to Point</Text>
+          <Button first active style={styles.modeButton}>
+            <Text style={styles.modeButtonTxt}>Manual</Text>
           </Button>
-          <Button last>
-            <Text>Autonomous</Text>
+          <Button style={styles.modeButton}>
+            <Text style={styles.modeButtonTxt}>Fly to Point</Text>
+          </Button>
+          <Button last style={styles.modeButton}>
+            <Text style={styles.modeButtonTxt}>Autonomous</Text>
           </Button>
           </Segment>
 

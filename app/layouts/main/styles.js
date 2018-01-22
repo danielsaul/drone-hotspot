@@ -7,4 +7,16 @@ export default{
     textAlign: 'center'
   },
 
+  modeButton: {
+    width: 100,
+    paddingLeft: 0,
+    paddingRight: 0,
+    justifyContent: 'center',
+  },
+
+  modeButtonTxt: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  }
+
 }
