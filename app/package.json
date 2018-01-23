@@ -24,6 +24,7 @@
     "expo": "^23.0.4",
     "form-data": "^2.2.0",
     "immutable": "^3.8.2",
+    "joystick-component-lib": "^0.1.2",
     "native-base": "^2.1.4",
     "react": "16.0.0",
     "react-native": "0.50.3",

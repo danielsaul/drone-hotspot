@@ -22,6 +22,17 @@ export default{
   twocol: {
     justifyContent: 'center',
     flexDirection: 'row',
+  },
+
+  draggableStyle: {
+    height: 60,
+    width: 60,
+    backgroundColor: '#1283ce',
+  },
+
+  backgroundStyle: {
+    backgroundColor: '#ffffff',
+    borderColor: '#1283ce',
   }
 
 }

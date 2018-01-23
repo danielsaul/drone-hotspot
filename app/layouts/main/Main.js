@@ -13,6 +13,7 @@ import { View } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { MapView } from 'expo';
+import { Joystick, JoystickDemuxed, TouchEventDemuxer } from 'joystick-component-lib';
 
 import MainHeader from '../../components/MainHeader'
 import ConnectionStatus from '../../components/ConnectionStatus'
@@ -27,6 +28,16 @@ import styles from './styles';
 
 const mapStateToProps = ({ location }) => ({ location });
 const mapDispatchToProps = {};
+
+const Demuxer = TouchEventDemuxer([JoystickDemuxed, JoystickDemuxed]);
+
+const firstHandler = (xProp, yProp) => {
+  console.log(xProp.dx);
+}
+
+const secondHandler = (xProp, yProp) => {
+  console.log(`second joystick: ${xProp}, ${yProp}`);
+}
 
 class Main extends Component{
   constructor(){
@@ -51,7 +62,7 @@ class Main extends Component{
     return (
       <Container>
         <MainHeader />
-        <Content>
+        <Content scrollEnabled={false}>
           <View style={{flex: 1}}>
             <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 250 }} />
           </View>
@@ -80,6 +91,36 @@ class Main extends Component{
             <Text style={styles.modeButtonTxt}>Autonomous</Text>
           </Button>
           </Segment>
+
+
+          <View>
+          <Joystick neutralPointX={100} neutralPointY={100} length={60} shape={'circular'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.draggableStyle} backgroundStyle={styles.backgroundStyle} />
+          
+          <Demuxer
+          childrenProps={[
+            {
+              neutralPointX: 200,
+              neutralPointY: 100,
+              length: 75,
+              shape: 'circular',
+              isSticky: true,
+              onJoystickMove: secondHandler,
+              draggableStyle: styles.draggableStyle,
+              backgroundStyle: styles.backgroundStyle,
+            },
+            {
+              neutralPointX: 200,
+              neutralPointY: 300,
+              length: 80,
+              shape: 'horizontal',
+              onJoystickMove: secondHandler,
+              draggableStyle: styles.draggableStyle,
+              backgroundStyle: styles.backgroundStyle,
+            },
+          ]}
+          />
+
+          </View>
 
         </Content>
         <Footer>
