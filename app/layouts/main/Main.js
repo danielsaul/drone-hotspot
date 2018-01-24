@@ -29,7 +29,7 @@ import styles from './styles';
 const mapStateToProps = ({ location }) => ({ location });
 const mapDispatchToProps = {};
 
-const Demuxer = TouchEventDemuxer([JoystickDemuxed, JoystickDemuxed]);
+const Demuxer = TouchEventDemuxer([JoystickDemuxed]);
 
 const firstHandler = (xProp, yProp) => {
   console.log(xProp.dx);
@@ -58,11 +58,28 @@ class Main extends Component{
 
   }
 
+  joystick(){
+    return(
+    <Demuxer style={{flex: 1}} childrenProps={[
+            {
+              neutralPointX: 100,
+              neutralPointY: 100,
+              length: 75,
+              shape: 'circular',
+              isSticky: true,
+              onJoystickMove: secondHandler,
+              draggableStyle: styles.draggableStyle,
+              backgroundStyle: styles.backgroundStyle,
+            } ]}/>)
+  }
+
   render(){
     return (
       <Container>
         <MainHeader />
+
         <Content scrollEnabled={false}>
+
           <View style={{flex: 1}}>
             <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 250 }} />
           </View>
@@ -92,40 +109,21 @@ class Main extends Component{
           </Button>
           </Segment>
 
-
           <View>
-          <Joystick neutralPointX={100} neutralPointY={100} length={60} shape={'circular'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.draggableStyle} backgroundStyle={styles.backgroundStyle} />
-          
-          <Demuxer
-          childrenProps={[
-            {
-              neutralPointX: 200,
-              neutralPointY: 100,
-              length: 75,
-              shape: 'circular',
-              isSticky: true,
-              onJoystickMove: secondHandler,
-              draggableStyle: styles.draggableStyle,
-              backgroundStyle: styles.backgroundStyle,
-            },
-            {
-              neutralPointX: 200,
-              neutralPointY: 300,
-              length: 80,
-              shape: 'horizontal',
-              onJoystickMove: secondHandler,
-              draggableStyle: styles.draggableStyle,
-              backgroundStyle: styles.backgroundStyle,
-            },
-          ]}
-          />
-
+            <Joystick neutralPointX={175} neutralPointY={77} length={60} shape={'vertical'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.altitudeSliderInner} backgroundStyle={styles.altitudeSliderOuter} />
+            <Text style={[styles.altitudeText, styles.labelText]}>Altitude</Text>
+            <Joystick neutralPointX={280} neutralPointY={77} length={60} shape={'circular'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.directionSliderInner} backgroundStyle={styles.directionSliderOuter} />
+            <Text style={[styles.moveText, styles.labelText]}>Move</Text>
+            <Joystick neutralPointX={85} neutralPointY={77} length={50} shape={'horizontal'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.yawSliderInner} backgroundStyle={styles.yawSliderOuter} />
+            <Text style={[styles.yawText, styles.labelText]}>Rotate</Text>
           </View>
 
         </Content>
+
         <Footer>
           <FlightButtons inFlight={true} onPress={{takeOff: null, land: null, return: null, abort: null}}/>
         </Footer>
+
       </Container>
     );
   }
