@@ -29,18 +29,12 @@ import styles from './styles';
 const mapStateToProps = ({ location }) => ({ location });
 const mapDispatchToProps = {};
 
-const firstHandler = (xProp, yProp) => {
-  console.log(xProp.dx);
-}
-
-const secondHandler = (xProp, yProp) => {
-  console.log(`second joystick: ${xProp}, ${yProp}`);
-}
-
 class Main extends Component{
   constructor(){
     super();
-    this.state = {};
+    this.state = {
+      segmentMode: 0,
+    };
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -54,6 +48,32 @@ class Main extends Component{
       }
     )
 
+  }
+
+  joysticks = () => {
+    return (
+    <View>
+      <Joystick neutralPointX={175} neutralPointY={77} length={60} shape={'vertical'} isSticky={true} onDraggableMove={this.joystickHandler("altitude")} draggableStyle={styles.altitudeSliderInner} backgroundStyle={styles.altitudeSliderOuter} />
+      <Text style={[styles.altitudeText, styles.labelText]}>Altitude</Text>
+      <Joystick neutralPointX={280} neutralPointY={77} length={60} shape={'circular'} isSticky={true} onDraggableMove={this.joystickHandler("move")} draggableStyle={styles.directionSliderInner} backgroundStyle={styles.directionSliderOuter} />
+      <Text style={[styles.moveText, styles.labelText]}>Move</Text>
+      <Joystick neutralPointX={85} neutralPointY={77} length={50} shape={'horizontal'} isSticky={true} onDraggableMove={this.joystickHandler("yaw")} draggableStyle={styles.yawSliderInner} backgroundStyle={styles.yawSliderOuter} />
+      <Text style={[styles.yawText, styles.labelText]}>Rotate</Text>
+    </View>
+    )
+  }
+
+  joystickHandler = (x) => (e) => {
+  }
+
+  flyToPoint = () => {
+    
+  }
+
+  segmentChange = (x) => (e) => {
+    if (x != this.state.segmentMode) {
+      this.setState({segmentMode: x});
+    }
   }
 
   render(){
@@ -81,25 +101,18 @@ class Main extends Component{
           </View>
 
           <Segment>
-          <Button first active style={styles.modeButton}>
-            <Text style={styles.modeButtonTxt}>Manual</Text>
-          </Button>
-          <Button style={styles.modeButton}>
-            <Text style={styles.modeButtonTxt}>Fly to Point</Text>
-          </Button>
-          <Button last style={styles.modeButton}>
-            <Text style={styles.modeButtonTxt}>Autonomous</Text>
-          </Button>
+            <Button first active={this.state.segmentMode == 0} style={styles.modeButton} onPress={this.segmentChange(0)}>
+              <Text style={styles.modeButtonTxt}>Manual</Text>
+            </Button>
+            <Button  active={this.state.segmentMode == 1} style={styles.modeButton} onPress={this.segmentChange(1)}>
+              <Text style={styles.modeButtonTxt}>Fly to Point</Text>
+            </Button>
+            <Button last active={this.state.segmentMode == 2} style={styles.modeButton} onPress={this.segmentChange(2)}>
+              <Text style={styles.modeButtonTxt}>Autonomous</Text>
+            </Button>
           </Segment>
 
-          <View>
-            <Joystick neutralPointX={175} neutralPointY={77} length={60} shape={'vertical'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.altitudeSliderInner} backgroundStyle={styles.altitudeSliderOuter} />
-            <Text style={[styles.altitudeText, styles.labelText]}>Altitude</Text>
-            <Joystick neutralPointX={280} neutralPointY={77} length={60} shape={'circular'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.directionSliderInner} backgroundStyle={styles.directionSliderOuter} />
-            <Text style={[styles.moveText, styles.labelText]}>Move</Text>
-            <Joystick neutralPointX={85} neutralPointY={77} length={50} shape={'horizontal'} isSticky={true} onDraggableMove={firstHandler} draggableStyle={styles.yawSliderInner} backgroundStyle={styles.yawSliderOuter} />
-            <Text style={[styles.yawText, styles.labelText]}>Rotate</Text>
-          </View>
+          {this.state.segmentMode == 0 ? this.joysticks() : null } 
 
         </Content>
 
