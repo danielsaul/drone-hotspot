@@ -29,8 +29,6 @@ import styles from './styles';
 const mapStateToProps = ({ location }) => ({ location });
 const mapDispatchToProps = {};
 
-const Demuxer = TouchEventDemuxer([JoystickDemuxed]);
-
 const firstHandler = (xProp, yProp) => {
   console.log(xProp.dx);
 }
@@ -56,21 +54,6 @@ class Main extends Component{
       }
     )
 
-  }
-
-  joystick(){
-    return(
-    <Demuxer style={{flex: 1}} childrenProps={[
-            {
-              neutralPointX: 100,
-              neutralPointY: 100,
-              length: 75,
-              shape: 'circular',
-              isSticky: true,
-              onJoystickMove: secondHandler,
-              draggableStyle: styles.draggableStyle,
-              backgroundStyle: styles.backgroundStyle,
-            } ]}/>)
   }
 
   render(){

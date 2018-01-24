@@ -10,11 +10,14 @@ import {
   Body
 } from 'native-base';
 import styles from './styles';
-
+import { Image } from 'react-native';
 export default (props) => (
-  <Header>
+  <Header style={styles.header} iosBarStyle='dark-content'>
     <Body>
-      <Title>Drone Hotspot</Title>
+      <Title style={styles.title}>DRONE HOTSPOT</Title>
+  {/*<Image
+        source={require('./logo.png')} style={styles.logo}
+      />*/}
     </Body>
   </Header>
 )
