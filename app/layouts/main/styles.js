@@ -6,6 +6,9 @@ export default{
     padding: 5,
     textAlign: 'center'
   },
+  centered2: {
+    textAlign: 'center'
+  },
 
   modeButton: {
     width: 100,

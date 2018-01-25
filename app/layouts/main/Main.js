@@ -7,9 +7,11 @@ import {
   Icon,
   Text,
   Button,
-  Segment
+  Segment,
+  Form,
 } from 'native-base';
-import { View } from 'react-native';
+const Item = Picker.Item;
+import { View, Picker } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { MapView } from 'expo';
@@ -67,7 +69,24 @@ class Main extends Component{
   }
 
   flyToPoint = () => {
-    
+    var options = [];
+    for (var i = 1; i < 20; i++) {
+      options.push(<Item label={i+" m"} key={i} value={i} />);
+    } 
+    return (
+      <View style={{justifyContent: 'center'}}>
+        <Text style={[styles.centered2, {paddingTop: 5}]}>Choose a location to fly to on the map above.</Text>
+        <Text style={[styles.centered2, styles.labelText, {paddingBottom: 5}]}>No location selected</Text>
+        <Text style={[styles.centered]}>Select altitude to fly to below:</Text>
+        <Picker
+          selectedValue={3}
+          style={{height: 100,}}
+          itemStyle={{fontSize: 15, height: 90,}}
+        >
+          {options}
+        </Picker>
+      </View>
+    )
   }
 
   segmentChange = (x) => (e) => {
@@ -113,6 +132,7 @@ class Main extends Component{
           </Segment>
 
           {this.state.segmentMode == 0 ? this.joysticks() : null } 
+          {this.state.segmentMode == 1 ? this.flyToPoint() : null } 
 
         </Content>
 
