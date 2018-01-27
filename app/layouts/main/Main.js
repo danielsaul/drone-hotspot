@@ -11,7 +11,7 @@ import {
   Form,
 } from 'native-base';
 const Item = Picker.Item;
-import { View, Picker } from 'react-native';
+import { View, Picker, Image } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { MapView } from 'expo';
@@ -76,10 +76,13 @@ class Main extends Component{
     return (
       <View style={{justifyContent: 'center'}}>
         <Text style={[styles.centered2, {paddingTop: 5}]}>Choose a location to fly to on the map above.</Text>
-        <Text style={[styles.centered2, styles.labelText, {paddingBottom: 5}]}>No location selected</Text>
+        <Text style={[styles.centered2, styles.labelText, {paddingBottom: 5}]}>
+          {'flyToCoords' in this.state ? this.state.flyToCoords.latitude.toFixed(6) + ', ' + this.state.flyToCoords.longitude.toFixed(6) : 'No location selected' }
+        </Text>
         <Text style={[styles.centered]}>Select altitude to fly to below:</Text>
         <Picker
-          selectedValue={3}
+          onValueChange={this.altitudePicker}
+          selectedValue={this.state.flyToAltitude}
           style={{height: 100,}}
           itemStyle={{fontSize: 15, height: 90,}}
         >
@@ -95,6 +98,54 @@ class Main extends Component{
     }
   }
 
+  regionChange = (map_region) => {
+    this.setState({ map_region });
+  }
+
+  mapPress = (e) => {
+    flyToCoords = e.nativeEvent.coordinate;
+    if (this.state.segmentMode == 1) {
+      this.setState({flyToCoords});
+    }
+  }
+
+  markerToFlyTo = () => (
+    <MapView.Marker
+      draggable
+      coordinate={this.state.flyToCoords}
+      onDragEnd={this.mapPress}
+      title='Location to fly to'
+    />
+  )
+
+  lineFlyTo = () => (
+    <MapView.Polyline
+		coordinates={[
+			this.state.flyToCoords,
+			{ latitude: 51.35, longitude: -0.228 }
+		]}
+		strokeColor="#777" // fallback for when `strokeColors` is not supported by the map-provider
+		strokeWidth={2}
+    lineDashPattern={[5,3]}
+	  />
+  )
+
+  markerDrone = () => (
+    <MapView.Marker
+      coordinate={{latitude: 51.35, longitude: -0.228}}
+      title='Drone Location'
+    >
+      <Image
+        source={require('./mapicon9.png')}
+        style={{width: 70, height: 70}}
+      />
+    </MapView.Marker>
+  )
+
+  altitudePicker = (flyToAltitude) => {
+    this.setState({flyToAltitude});
+  }
+
   render(){
     return (
       <Container>
@@ -103,7 +154,18 @@ class Main extends Component{
         <Content scrollEnabled={false}>
 
           <View style={{flex: 1}}>
-            <MapView region={this.state.map_region} showsUserLocation={true} style={{ alignSelf: 'stretch', height: 250 }} />
+            <MapView
+              region={this.state.map_region}
+              onRegionChange={this.regionChange}
+              onPress={this.mapPress}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              style={{ alignSelf: 'stretch', height: 250 }}
+            >
+              {this.state.segmentMode == 1 && 'flyToCoords' in this.state ? this.markerToFlyTo() : null}
+              {this.state.segmentMode == 1 && 'flyToCoords' in this.state ? this.lineFlyTo() : null}
+              {this.markerDrone()}
+            </MapView>
           </View>
 
           <View style={styles.twocol}>
