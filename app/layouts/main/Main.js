@@ -28,7 +28,7 @@ import FlightButtons from '../../components/FlightButtons'
 
 import styles from './styles';
 
-const mapStateToProps = ({ location }) => ({ location });
+const mapStateToProps = ({ location, connection }) => ({ location, connection });
 const mapDispatchToProps = {};
 
 class Main extends Component{
@@ -169,7 +169,7 @@ class Main extends Component{
           </View>
 
           <View style={styles.twocol}>
-            <ConnectionStatus status={false} />
+            <ConnectionStatus status={this.props.connection} />
             <SignalStatus status={0} />
           </View>
           <View style={styles.twocol}>

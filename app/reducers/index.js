@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 
 const rootReducer = combineReducers({
-  data: require('./data').default,
+  connection: require('./connection').default,
   location: require('./location').default,
 })
 

@@ -13,5 +13,4 @@ export default (location = initialLocation, action) => {
     default:
       return location;
   }
-  return data;
 };
