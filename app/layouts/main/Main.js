@@ -15,7 +15,6 @@ import { View, Picker, Image } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { MapView } from 'expo';
-import { Joystick, JoystickDemuxed, TouchEventDemuxer } from 'joystick-component-lib';
 
 import MainHeader from '../../components/MainHeader'
 import ConnectionStatus from '../../components/ConnectionStatus'
@@ -25,6 +24,7 @@ import AltitudeStatus from '../../components/AltitudeStatus'
 import DistanceStatus from '../../components/DistanceStatus'
 import SpeedStatus from '../../components/SpeedStatus'
 import FlightButtons from '../../components/FlightButtons'
+import ManualMode from '../../components/ManualMode'
 
 import styles from './styles';
 
@@ -50,19 +50,6 @@ class Main extends Component{
       }
     )
 
-  }
-
-  joysticks = () => {
-    return (
-    <View>
-      <Joystick neutralPointX={175} neutralPointY={77} length={60} shape={'vertical'} isSticky={true} onDraggableMove={this.joystickHandler("altitude")} draggableStyle={styles.altitudeSliderInner} backgroundStyle={styles.altitudeSliderOuter} />
-      <Text style={[styles.altitudeText, styles.labelText]}>Altitude</Text>
-      <Joystick neutralPointX={280} neutralPointY={77} length={60} shape={'circular'} isSticky={true} onDraggableMove={this.joystickHandler("move")} draggableStyle={styles.directionSliderInner} backgroundStyle={styles.directionSliderOuter} />
-      <Text style={[styles.moveText, styles.labelText]}>Move</Text>
-      <Joystick neutralPointX={85} neutralPointY={77} length={50} shape={'horizontal'} isSticky={true} onDraggableMove={this.joystickHandler("yaw")} draggableStyle={styles.yawSliderInner} backgroundStyle={styles.yawSliderOuter} />
-      <Text style={[styles.yawText, styles.labelText]}>Rotate</Text>
-    </View>
-    )
   }
 
   joystickHandler = (x) => (e) => {
@@ -193,7 +180,7 @@ class Main extends Component{
             </Button>
           </Segment>
 
-          {this.state.segmentMode == 0 ? this.joysticks() : null } 
+          {this.state.segmentMode == 0 ? <ManualMode handler={this.joystickHandler} /> : null } 
           {this.state.segmentMode == 1 ? this.flyToPoint() : null } 
 
         </Content>
