@@ -25,6 +25,7 @@ import DistanceStatus from '../../components/DistanceStatus'
 import SpeedStatus from '../../components/SpeedStatus'
 import FlightButtons from '../../components/FlightButtons'
 import ManualMode from '../../components/ManualMode'
+import FlyToPointMode from '../../components/FlyToPointMode'
 
 import styles from './styles';
 
@@ -53,30 +54,6 @@ class Main extends Component{
   }
 
   joystickHandler = (x) => (e) => {
-  }
-
-  flyToPoint = () => {
-    var options = [];
-    for (var i = 1; i < 20; i++) {
-      options.push(<Item label={i+" m"} key={i} value={i} />);
-    } 
-    return (
-      <View style={{justifyContent: 'center'}}>
-        <Text style={[styles.centered2, {paddingTop: 5}]}>Choose a location to fly to on the map above.</Text>
-        <Text style={[styles.centered2, styles.labelText, {paddingBottom: 5}]}>
-          {'flyToCoords' in this.state ? this.state.flyToCoords.latitude.toFixed(6) + ', ' + this.state.flyToCoords.longitude.toFixed(6) : 'No location selected' }
-        </Text>
-        <Text style={[styles.centered]}>Select altitude to fly to below:</Text>
-        <Picker
-          onValueChange={this.altitudePicker}
-          selectedValue={this.state.flyToAltitude}
-          style={{height: 100,}}
-          itemStyle={{fontSize: 15, height: 90,}}
-        >
-          {options}
-        </Picker>
-      </View>
-    )
   }
 
   segmentChange = (x) => (e) => {
@@ -181,7 +158,15 @@ class Main extends Component{
           </Segment>
 
           {this.state.segmentMode == 0 ? <ManualMode handler={this.joystickHandler} /> : null } 
-          {this.state.segmentMode == 1 ? this.flyToPoint() : null } 
+          {this.state.segmentMode == 1 ?
+              <FlyToPointMode
+                min={1}
+                max={100}
+                coords={this.state.flyToCoords}
+                altitudeValue={this.state.flyToAltitude}
+                altitudePickerChange={this.altitudePicker}
+              />
+          : null } 
 
         </Content>
 
