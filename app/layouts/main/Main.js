@@ -28,7 +28,7 @@ import FlightButtons from '../../components/FlightButtons'
 
 import styles from './styles';
 
-const mapStateToProps = ({ location, connection }) => ({ location, connection });
+const mapStateToProps = ({ location, connection, drone }) => ({ location, connection, drone });
 const mapDispatchToProps = {};
 
 class Main extends Component{
@@ -122,9 +122,9 @@ class Main extends Component{
     <MapView.Polyline
 		coordinates={[
 			this.state.flyToCoords,
-			{ latitude: 51.35, longitude: -0.228 }
+			this.props.drone.location
 		]}
-		strokeColor="#777" // fallback for when `strokeColors` is not supported by the map-provider
+		strokeColor="#777" 
 		strokeWidth={2}
     lineDashPattern={[5,3]}
 	  />
@@ -132,7 +132,7 @@ class Main extends Component{
 
   markerDrone = () => (
     <MapView.Marker
-      coordinate={{latitude: 51.35, longitude: -0.228}}
+      coordinate={this.props.drone.location}
       title='Drone Location'
     >
       <Image
@@ -170,15 +170,15 @@ class Main extends Component{
 
           <View style={styles.twocol}>
             <ConnectionStatus status={this.props.connection} />
-            <SignalStatus status={0} />
+            <SignalStatus status={this.props.drone.signal} />
           </View>
           <View style={styles.twocol}>
-            <AltitudeStatus status={0} />
-            <BatteryStatus status={0} />
+            <AltitudeStatus status={this.props.drone.altitude} />
+            <BatteryStatus status={this.props.drone.battery} />
           </View>
           <View style={styles.twocol}>
-            <DistanceStatus status={0} />
-            <SpeedStatus status={0} />
+            <DistanceStatus status={this.props.drone.distance} />
+            <SpeedStatus status={this.props.drone.speed} />
           </View>
 
           <Segment>
