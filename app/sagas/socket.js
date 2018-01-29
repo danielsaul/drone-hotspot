@@ -69,8 +69,8 @@ const listenConnectSaga = function* () {
 const listen = function* (socket) {
   const channel = yield call(socketChannel, socket);
   while (true) {
-    const payload = yield take(channel);
-    yield put({type: UPDATE_DRONE, payload});
+    const drone = yield take(channel);
+    yield put({type: UPDATE_DRONE, drone});
   }
 };
 
