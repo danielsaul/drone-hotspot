@@ -15,7 +15,7 @@ export default (props) => (
         length={60}
         shape={'vertical'}
         isSticky={true}
-        onDraggableMove={props.handler("altitude")}
+        onDraggableMove={props.handler("altitude", 60)}
         draggableStyle={styles.altitudeSliderInner}
         backgroundStyle={styles.altitudeSliderOuter}
       />
@@ -27,7 +27,7 @@ export default (props) => (
         length={60}
         shape={'circular'}
         isSticky={true}
-        onDraggableMove={props.handler("move")}
+        onDraggableMove={props.handler("move", 60)}
         draggableStyle={styles.directionSliderInner}
         backgroundStyle={styles.directionSliderOuter}
       />
@@ -39,7 +39,7 @@ export default (props) => (
         length={50}
         shape={'horizontal'}
         isSticky={true}
-        onDraggableMove={props.handler("yaw")}
+        onDraggableMove={props.handler("yaw", 50)}
         draggableStyle={styles.yawSliderInner}
         backgroundStyle={styles.yawSliderOuter}
       />

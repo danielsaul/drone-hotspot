@@ -27,17 +27,27 @@ import FlightButtons from '../../components/FlightButtons'
 import ManualMode from '../../components/ManualMode'
 import FlyToPointMode from '../../components/FlyToPointMode'
 
+import { setmode, updatemanual, updateflytopoint } from '../../reducers/control'
+
 import styles from './styles';
 
-const mapStateToProps = ({ location, connection, drone }) => ({ location, connection, drone });
-const mapDispatchToProps = {};
+const mapStateToProps = s => ({ connection: s.connection, drone: s.drone, control: { mode: s.control.mode, flytopoint: s.control.flytopoint } });
+const mapDispatchToProps = dispatch => ({
+  modeChange: mode => {
+    dispatch(setmode(mode))
+  },
+  manualChange: manual => {
+    dispatch(updatemanual(manual))
+  },
+  flytopointChange: flytopoint => {
+    dispatch(updateflytopoint(flytopoint))
+  }
+});
 
 class Main extends Component{
   constructor(){
     super();
-    this.state = {
-      segmentMode: 0,
-    };
+    this.state = {};
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -53,12 +63,28 @@ class Main extends Component{
 
   }
 
-  joystickHandler = (x) => (e) => {
+  joystickHandler = (x, len) => (e) => {
+    let str = x;
+    switch (str) {
+      case "move":
+        let x = e.dx/len;
+        let y = e.dy/len;
+        this.props.manualChange({move: {x, y}});
+        break;
+      case "altitude":
+        let altitude = e.dy/len;
+        this.props.manualChange({altitude});
+        break;
+      case "yaw":
+        let yaw = e.dx/len;
+        this.props.manualChange({yaw});
+        break;
+    }
   }
 
   segmentChange = (x) => (e) => {
-    if (x != this.state.segmentMode) {
-      this.setState({segmentMode: x});
+    if (x != this.props.control.mode) {
+      this.props.modeChange({mode: x});
     }
   }
 
@@ -67,25 +93,25 @@ class Main extends Component{
   }
 
   mapPress = (e) => {
-    flyToCoords = e.nativeEvent.coordinate;
-    if (this.state.segmentMode == 1) {
-      this.setState({flyToCoords});
+    let location = e.nativeEvent.coordinate;
+    if (this.props.control.mode == "flytopoint") {
+      this.props.flytopointChange({location});
     }
   }
 
   markerToFlyTo = () => (
     <MapView.Marker
       draggable
-      coordinate={this.state.flyToCoords}
+      coordinate={this.props.control.flytopoint.location}
       onDragEnd={this.mapPress}
       title='Location to fly to'
     />
   )
 
-  lineFlyTo = () => (
+  lineToFlyTo = () => (
     <MapView.Polyline
 		coordinates={[
-			this.state.flyToCoords,
+      this.props.control.flytopoint.location,
 			this.props.drone.location
 		]}
 		strokeColor="#777" 
@@ -106,8 +132,8 @@ class Main extends Component{
     </MapView.Marker>
   )
 
-  altitudePicker = (flyToAltitude) => {
-    this.setState({flyToAltitude});
+  altitudePicker = (x) => {
+    this.props.flytopointChange({altitude: x});
   }
 
   render(){
@@ -126,8 +152,8 @@ class Main extends Component{
               showsMyLocationButton={true}
               style={{ alignSelf: 'stretch', height: 250 }}
             >
-              {this.state.segmentMode == 1 && 'flyToCoords' in this.state ? this.markerToFlyTo() : null}
-              {this.state.segmentMode == 1 && 'flyToCoords' in this.state ? this.lineFlyTo() : null}
+              {this.props.control.mode == "flytopoint" && this.props.control.flytopoint.location != null ? this.markerToFlyTo() : null}
+              {this.props.control.mode == "flytopoint" && this.props.control.flytopoint.location != null ? this.lineToFlyTo() : null}
               {this.markerDrone()}
             </MapView>
           </View>
@@ -146,24 +172,24 @@ class Main extends Component{
           </View>
 
           <Segment>
-            <Button first active={this.state.segmentMode == 0} style={styles.modeButton} onPress={this.segmentChange(0)}>
+            <Button first active={this.props.control.mode == "manual"} style={styles.modeButton} onPress={this.segmentChange("manual")}>
               <Text style={styles.modeButtonTxt}>Manual</Text>
             </Button>
-            <Button  active={this.state.segmentMode == 1} style={styles.modeButton} onPress={this.segmentChange(1)}>
+            <Button  active={this.props.control.mode == "flytopoint"} style={styles.modeButton} onPress={this.segmentChange("flytopoint")}>
               <Text style={styles.modeButtonTxt}>Fly to Point</Text>
             </Button>
-            <Button last active={this.state.segmentMode == 2} style={styles.modeButton} onPress={this.segmentChange(2)}>
+            <Button last active={this.props.control.mode == "autonomous"} style={styles.modeButton} onPress={this.segmentChange("autonomous")}>
               <Text style={styles.modeButtonTxt}>Autonomous</Text>
             </Button>
           </Segment>
 
-          {this.state.segmentMode == 0 ? <ManualMode handler={this.joystickHandler} /> : null } 
-          {this.state.segmentMode == 1 ?
+          {this.props.control.mode == "manual" ? <ManualMode handler={this.joystickHandler} /> : null } 
+          {this.props.control.mode == "flytopoint" ?
               <FlyToPointMode
                 min={1}
                 max={100}
-                coords={this.state.flyToCoords}
-                altitudeValue={this.state.flyToAltitude}
+                coords={this.props.control.flytopoint.location}
+                altitudeValue={this.props.control.flytopoint.altitude}
                 altitudePickerChange={this.altitudePicker}
               />
           : null } 
