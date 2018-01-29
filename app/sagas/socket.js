@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 import { eventChannel, delay } from 'redux-saga';
-import { takeEvery, take, put, call, race, fork, actionChannel } from 'redux-saga/effects';
+import { takeEvery, take, put, call, race, fork, select, actionChannel } from 'redux-saga/effects';
 
 import { DRONE_CONNECTED, DRONE_DISCONNECTED } from '../reducers/connection';
 import { UPDATE_DRONE } from '../reducers/drone';
@@ -74,39 +74,45 @@ const listen = function* (socket) {
   }
 };
 
+export const getState = state => ({...state.control, location: state.location});
+
 // send
 const send = function* (socket) {
   const chan = yield actionChannel('*');
   while (true) {
     action = yield take(chan);
     switch (action.type){
+      case 'DRONE_CONNECTED':
+        const state = yield select(getState)
+        socket.emit('update_all', state);
+        break;
       case 'BTN_TAKEOFF':
-        console.log('takeoff');
+        socket.emit('action', 'takeoff');
         break;
       case 'BTN_LAND':
-        console.log('land');
+        socket.emit('action', 'land');
         break;
       case 'BTN_RETURN':
-        console.log('return');
+        socket.emit('action', 'return');
         break;
       case 'UPDATE_LOCATION':
-        console.log('location');
+        socket.emit('update_location', action.location);
         break;
       case 'SET_MODE':
-        console.log('mode');
+        socket.emit('set_mode', action.mode);
         break;
       case 'UPDATE_MANUAL':
-        console.log('manual');
+        socket.emit('update_manual', action.manual);
         break;
       case 'UPDATE_FLYTOPOINT':
-        console.log('flytopoint');
+        socket.emit('update_flytopoint', action.flytopoint);
         break;
     };
   }
 };
 
 const sendAbort = function* (socket, action) {
-  console.log('abort');
+  socket.emit('action', 'abort');
 };
 
 // Saga
@@ -127,12 +133,12 @@ const listenServerSaga = function* () {
     yield fork(listenDisconnectSaga);
     yield fork(listenConnectSaga);
 
-    yield put({type: DRONE_CONNECTED});
-
     // Listen and Send 
     yield fork(listen, socket);
     yield fork(send, socket);
     yield takeEvery('BTN_ABORT', sendAbort, socket);
+
+    yield put({type: DRONE_CONNECTED});
 
   } catch (error) {
     console.log(error);
