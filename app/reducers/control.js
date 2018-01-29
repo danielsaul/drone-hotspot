@@ -19,25 +19,33 @@ const initialControl = {
 
 export const SET_MODE = 'SET_MODE';
 export const UPDATE_MANUAL = 'UPDATE_MANUAL';
-export const UPDATE_FLYTOPOINT_ALT = 'UPDATE_FLYTOPOINT_ALT';
-export const UPDATE_FLYTOPOINT_LOC = 'UPDATE_FLYTOPOINT_LOC';
+export const UPDATE_FLYTOPOINT = 'UPDATE_FLYTOPOINT';
 
 const setmode = mode => ({ type: SET_MODE, mode: mode })
 const updatemanual = manual => ({ type: UPDATE_MANUAL, manual })
-const updateflytopointalt = altitude => ({ type: UPDATE_FLYTOPOINT_ALT, altitude })
-const updateflytopointloc = location => ({ type: UPDATE_FLYTOPOINT_LOC, location })
+const updateflytopoint = altitude => ({ type: UPDATE_FLYTOPOINT, flytopoint })
 
 export default (control = initialControl, action) => {
   switch (action.type) {
     case SET_MODE:
       return {...control, mode: action.mode};
     case UPDATE_MANUAL:
-      return {...control, manual: action.manual};
-    case UPDATE_FLYTOPOINT_ALT:
-      return {...control, flytopoint: {...control.flytopoint, altitude: action.altitude}};
-    case UPDATE_FLYTOPOINT_LOC:
-      return {...control, flytopoint: {...control.flytopoint, location: action.location}};
+      return {...control, manual: {...control.manual, ...action.manual}};
+    case UPDATE_FLYTOPOINT:
+      return {...control, flytopoint: {...control.flytopoint, ...action.flytopoint}};
     default:
       return control;
   }
+};
+
+export const modeChange = mode => dispatch => {
+  dispatch(setmode(mode));
+};
+
+export const manualChange = change => dispatch => {
+  dispatch(updatemanual(change));
+};
+
+export const flytopointChange = change => dispatch => {
+  dispatch(updateflytopoint(change));
 };
