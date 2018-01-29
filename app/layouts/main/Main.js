@@ -55,6 +55,7 @@ class Main extends Component{
   constructor(){
     super();
     this.state = {};
+    this.prevJoystick = {x: 0.0, y: 0.0}
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -92,21 +93,27 @@ class Main extends Component{
 
   joystickHandler = (x, len) => (e) => {
     let str = x;
-    switch (str) {
-      case "move":
-        let x = e.dx/len;
-        let y = e.dy/len;
-        this.props.manualChange({move: {x, y}});
-        break;
-      case "altitude":
-        let altitude = e.dy/len;
-        this.props.manualChange({altitude});
-        break;
-      case "yaw":
-        let yaw = e.dx/len;
-        this.props.manualChange({yaw});
-        break;
+    let x = e.dx/len;
+    let y = e.dy/len;
+
+    if (Math.abs(this.prevJoystick.x - x) >= 0.2 || Math.abs(this.prevJoystick.y - y) >= 0.2) {
+      switch (str) {
+        case "move":
+         this.props.manualChange({move: {x, y}});
+          break;
+        case "altitude":
+          let altitude = y;
+          this.props.manualChange({altitude});
+          break;
+        case "yaw":
+          let yaw = x;
+          this.props.manualChange({yaw});
+          break;
+      }
     }
+
+    this.prevJoystick = {x, y}
+
   }
 
   segmentChange = (x) => (e) => {
