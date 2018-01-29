@@ -10,5 +10,8 @@ export default {
   logo: {
     height: 30,
     resizeMode: 'contain',
+  },
+  btn: {
+    color: '#c3c3c3',
   }
 };

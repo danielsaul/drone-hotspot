@@ -11,7 +11,7 @@ import {
   Form,
 } from 'native-base';
 const Item = Picker.Item;
-import { View, Picker, Image } from 'react-native';
+import { View, Picker, Image, AlertIOS } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { MapView } from 'expo';
@@ -28,10 +28,11 @@ import ManualMode from '../../components/ManualMode'
 import FlyToPointMode from '../../components/FlyToPointMode'
 
 import { setmode, updatemanual, updateflytopoint } from '../../reducers/control'
+import { updateip } from '../../reducers/droneip'
 
 import styles from './styles';
 
-const mapStateToProps = s => ({ connection: s.connection, drone: s.drone, control: { mode: s.control.mode, flytopoint: s.control.flytopoint } });
+const mapStateToProps = s => ({ connection: s.connection, droneip: s.droneip, drone: s.drone, control: { mode: s.control.mode, flytopoint: s.control.flytopoint } });
 const mapDispatchToProps = dispatch => ({
   modeChange: mode => {
     dispatch(setmode(mode))
@@ -44,6 +45,9 @@ const mapDispatchToProps = dispatch => ({
   },
   buttonPress: type => () => {
     dispatch({type})
+  },
+  ipChange: ip => {
+    dispatch(updateip(ip))
   }
 });
 
@@ -64,6 +68,26 @@ class Main extends Component{
       }
     )
 
+  }
+
+  getDroneIP = () => {
+    AlertIOS.prompt(
+      'Drone Connection',
+      'Enter IP address and port of drone:',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: this.props.ipChange,
+        },
+      ],
+      'plain-text',
+      this.props.droneip,
+      'url'
+    );
   }
 
   joystickHandler = (x, len) => (e) => {
@@ -142,7 +166,7 @@ class Main extends Component{
   render(){
     return (
       <Container>
-        <MainHeader />
+        <MainHeader btn={this.getDroneIP} />
 
         <Content scrollEnabled={false}>
 

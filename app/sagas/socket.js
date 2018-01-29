@@ -1,4 +1,5 @@
 import io from 'socket.io-client';
+import { AsyncStorage } from 'react-native';
 import { eventChannel, delay } from 'redux-saga';
 import { takeEvery, take, put, call, race, fork, select, actionChannel } from 'redux-saga/effects';
 
@@ -6,13 +7,12 @@ import { DRONE_CONNECTED, DRONE_DISCONNECTED } from '../reducers/connection';
 import { UPDATE_DRONE } from '../reducers/drone';
 
 
-const socketServerURL = 'http://localhost:8080';
-
+export const getIP = state => state.droneip;
 
 // Connection functions (connect, disconnect, reconnect)
 let socket;
-const connect = () => {
-  socket = io(socketServerURL, {transports: ['websocket']});
+const connect = url => {
+  socket = io(url, {transports: ['websocket']});
   return new Promise((resolve) => {
     socket.on('connect', () => {
       resolve(socket);
@@ -20,8 +20,8 @@ const connect = () => {
   });
 };
 
-const disconnect = () => {
-  socket = io(socketServerURL, {transports: ['websocket']});
+const disconnect = url => {
+  socket = io(url, {transports: ['websocket']});
   return new Promise((resolve) => {
     socket.on('disconnect', () => {
       resolve(socket);
@@ -29,8 +29,8 @@ const disconnect = () => {
   });
 };
 
-const reconnect = () => {
-  socket = io(socketServerURL, {transports: ['websocket']});
+const reconnect = url => {
+  socket = io(url, {transports: ['websocket']});
   return new Promise((resolve) => {
     socket.on('reconnect', () => {
       resolve(socket);
@@ -54,13 +54,15 @@ const socketChannel = socket => eventChannel((emit) => {
 // monitor connection status
 const listenDisconnectSaga = function* () {
   while (true) {
-    yield call(disconnect);
+    const url = yield select(getIP);
+    yield call(disconnect, url);
     yield put({type: DRONE_DISCONNECTED});
   }
 };
 const listenConnectSaga = function* () {
   while (true) {
-    yield call(reconnect);
+    const url = yield select(getIP);
+    yield call(reconnect, url);
     yield put({type: DRONE_CONNECTED});
   }
 };
@@ -115,20 +117,37 @@ const sendAbort = function* (socket, action) {
   socket.emit('action', 'abort');
 };
 
+const monitorDroneIP = function* (action) {
+  yield AsyncStorage.setItem('@AppLocalStorage:drone_ip', action.ip);
+};
+
 // Saga
 const listenServerSaga = function* () {
   try {
-    // Try to connect
-    const {timeout} = yield race({
-      connected: call(connect),
-      timeout: delay(2000),
-    });
-    if (timeout) {
-      yield put({type: DRONE_DISCONNECTED});
+    
+    // Get IP address / URL from storage
+    const ip = yield AsyncStorage.getItem('@AppLocalStorage:drone_ip');
+    if (ip != null){
+      yield put({type: 'UPDATE_IP', ip});
     }
 
-    const socket = yield call(connect);
+    // Monitor changes to IP
+    yield takeEvery('UPDATE_IP', monitorDroneIP);
 
+    // Try to connect
+    while (true) {
+      const url = yield select(getIP);
+      const {socket, timeout} = yield race({
+        socket: call(connect, url),
+        timeout: delay(2000),
+      });
+      if (timeout) {
+        yield put({type: DRONE_DISCONNECTED});
+      }else{
+        break;
+      }
+    }
+    
     // Monitor connection
     yield fork(listenDisconnectSaga);
     yield fork(listenConnectSaga);
