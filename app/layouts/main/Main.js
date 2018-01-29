@@ -41,6 +41,9 @@ const mapDispatchToProps = dispatch => ({
   },
   flytopointChange: flytopoint => {
     dispatch(updateflytopoint(flytopoint))
+  },
+  buttonPress: type => () => {
+    dispatch({type})
   }
 });
 
@@ -197,7 +200,16 @@ class Main extends Component{
         </Content>
 
         <Footer>
-          <FlightButtons inFlight={true} onPress={{takeOff: null, land: null, return: null, abort: null}}/>
+          <FlightButtons
+            disabled={!this.props.connection}
+            inFlight={this.props.drone.status == "flying"}
+            onPress={{
+              takeOff: this.props.buttonPress('BTN_TAKEOFF'),
+              land: this.props.buttonPress('BTN_LAND'),
+              return: this.props.buttonPress('BTN_RETURN'),
+              abort: this.props.buttonPress('BTN_ABORT')
+            }}
+          />
         </Footer>
 
       </Container>
