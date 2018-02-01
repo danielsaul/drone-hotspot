@@ -4,7 +4,7 @@ import Main from './layouts/main';
 
 const scenes = Actions.create(
   <Scene key="root">
-    <Scene key="main" component={Main} title="Drone Hotspot" initial={true} />
+    <Scene key="main" component={Main} title="Drone Hotspot" initial={true} hideNavBar/>
   </Scene>
 );
 
