@@ -24,6 +24,9 @@ drone.useDemoMode(False)                                                      # 
 drone.getNDpackage(["demo","pressure_raw","altitude","magneto","wifi","euler_angles"])       # Packets, which shall be decoded
 time.sleep(1.0)                                                               # Give it some time to awake fully after reset
 
+drone.trim()
+drone.getSelfRotation(5)
+
 ##### Mainprogram begin #####
 NDC = drone.NavDataCount
 end = False
