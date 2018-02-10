@@ -22,7 +22,7 @@ GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 
 sys.path.insert(0, '/home/pi/drone-hotspot/hardware')
-##import signalStrength
+import signalStrength
 from gpsCoordinate import *
 
 os.system('clear')  # clear the terminal (optional)
@@ -94,8 +94,8 @@ def flightController(drone, flight_bearing, drone_speed):
     drone.turnAngle(turning_angle, 1, 1)
     time.sleep(0.1)
     # drone.move(0.0,drone_speed,0.0,turning_angle)
-    # drone.moveForward(drone_speed)
-    time.sleep(0.5)
+    drone.moveForward()
+    time.sleep(1.0)
     print "moving..."
 
 if __name__ == '__main__':   
@@ -146,18 +146,20 @@ if __name__ == '__main__':
 
         while not flightEnd:
             # Receive Destination GPS Coordinates
-            destinationLat = 0
-            destinationLon = 0 
-            
+            destinationLon = -0.13826
+            destinationLat = 51.52699
+#            currentLon = -0.13814
+#            currentLat = 51.52689
+
             # Receive Current GPS Coordinates
             currentLat,currentLon = get_coordinates('Get GPS coordinate\r\n')
-            print "Current Latitude: ", currentLat,
-            print "Current Longitude: ", currentLon 
+#            print "Current Latitude: ", currentLat,
+#            print "Current Longitude: ", currentLon 
 #            currentLat = gpsd.fix.latitude
 #            currentLon = gpsd.fix.longitude
-            while currentLat == None or currentLon == None:
-                print "waiting for coordinate"
-                drone.stop()
+#            while currentLat == None or currentLon == None:
+#                print "waiting for coordinate"
+#                drone.stop()
 
             # Compute actual distance and direction
             flightDistance = haversine(currentLon, currentLat, destinationLon, destinationLat)
@@ -166,15 +168,15 @@ if __name__ == '__main__':
             print "Flight bearing: " + str(flightBearing)
             
             # Retrieve ultrasound sensor distance
-            dist = ultrasonic_distance.distance()/100
-            print "obstacle distance: " + str(dist)
+#            dist = ultrasonic_distance.distance()/100
+#            print "obstacle distance: " + str(dist)
 
             flightController(drone, flightBearing, droneSpeed)
             
             # Retrieve 4G signal strength
             droneSignalStrength = signalStrength.main()
             print "current signal strength:" , droneSignalStrength                   
-            if abs(flightDistance) <= 5 or drone.getKey() \
+            if abs(flightDistance) <= 1 or drone.getKey() \
                or time.time() - refTime >= flightTime:
                 flightEnd = True
 

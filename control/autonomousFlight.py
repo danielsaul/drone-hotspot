@@ -12,6 +12,7 @@ import signalStrength
 from gpsCoordinate import *
 
 def displaceXY(lat,lng,theta, distance):
+    #Formula for large circle over long distance
     theta = np.float32(theta)
     radius = 6371 #km
 
@@ -32,6 +33,7 @@ def displaceXY(lat,lng,theta, distance):
     return [np.rad2deg(lat2), np.rad2deg(lng2)]
 
 def displaceLatLon(lat,lon,bearing,distance):
+    #Planar formula for short distance
     bearing = np.deg2rad(bearing)
     dx = distance * sin(bearing)
     dy = distance * cos(bearing)
@@ -44,16 +46,20 @@ def displaceLatLon(lat,lon,bearing,distance):
 
 
 def autonomousController(drone,destinationLat,destinationLon):
-    droneSpeed = 0.1 / 5
+    droneSpeed = 1 / 5
     flightEnd = False
     while not flightEnd:
         # Receive Current GPS Coordinates
+        while get_coordinates('Get GPS coordinate\r\n') == (None,None):
+            print "waiting for GPS fix"
+
         currentLat,currentLon = get_coordinates('Get GPS coordinate\r\n')
-        print "Current Latitude: ", currentLat,
+#        currentLat = 0
+#        currentLon = 0
+
+        print "Current Latitude: ", currentLat
         print "Current Longitude: ", currentLon 
-        while currentLat == None or currentLon == None:
-            print "waiting for coordinate"
-            drone.stop()
+        print "Current Signal Strength: ", signalStrength.main()
 
         flightDistance = haversine(currentLon, currentLat, destinationLon, destinationLat)
         print "Flight distance: " + str(flightDistance)
@@ -67,7 +73,6 @@ def autonomousController(drone,destinationLat,destinationLon):
 
     drone.stop()
     
-    
 if __name__ == '__main__':
     # Drone Startup Sequence
     drone = ps_drone.Drone()
@@ -79,7 +84,7 @@ if __name__ == '__main__':
     drone.getNDpackage(["demo"])
     time.sleep(1.0)
     drone.trim()
-    drone.getSelfRotation(5)
+    drone.getSelfRotation(10)
 
     # Initialise lists to store signal strength and coordinates data
     ssList   = []
@@ -99,37 +104,32 @@ if __name__ == '__main__':
         initialLat,initialLon = get_coordinates('Get GPS coordinate\r\n')
         print initialLat,initialLon
 
-#        initialLon = 51.52689
-#        initialLat = -0.13814
+#        initialLat = 0
+#        initialLon = 0
         lonList.append(initialLon)
         latList.append(initialLat)
 
         # Calculate 3 additional coordinates 10m away
         flightRadius = 10
+        destBearing = 360/3
 
-        firstDestination = displaceLatLon(initialLat,initialLon,0,flightRadius)
-        lonList.append(firstDestination[1])
-        latList.append(firstDestination[0])
+        for i in range(3):
+            dest = displaceLatLon(initialLat,initialLon,i*destBearing,flightRadius)
+            latList.append(dest[0])
+            lonList.append(dest[1])
 
-        secondDestination = displaceLatLon(initialLat,initialLon,120,flightRadius)
-        lonList.append(secondDestination[1])
-        latList.append(secondDestination[0])
-
-        thirdDestination = displaceLatLon(initialLat,initialLon,240,flightRadius)
-        lonList.append(thirdDestination[1])
-        latList.append(thirdDestination[0])
-        
         print "Latitudes: ", latList
         print "Longitudes: ", lonList
 
         # Begin flight sequence
-#        drone.takeoff()
+        drone.takeoff()
         while drone.NavData["demo"][0][2]:  time.sleep(0.1)
 
         # Fly to the pre-determined destinations and measure signal strengths
         for i in range(1,4):
+            print "Destination Coordinates: ", latList[i], lonList[i]
             autonomousController(drone, latList[i], lonList[i])
-            ssList.append(signalStrength.main())
+            ssList.append(signalStrength.main()) #TODO: check if ss is None
 
         print "Signal Strengths: ", ssList
         
@@ -138,8 +138,10 @@ if __name__ == '__main__':
         optimalLon = 0
         for i in range(4):
             weighting = ssList[i]/sum(ssList)
-            optimalLat = optimalLat + weighting*yList[i]
-            optimalLon = optimalLon + weighting*xList[i]
+            optimalLat = optimalLat + weighting*latList[i]
+            optimalLon = optimalLon + weighting*lonList[i]
+
+        print "Optimal Destination: ", optimalLat, optimalLon
 
         # Fly to the optimised destination
         autonomousController(drone, optimalLat, optimalLon)
