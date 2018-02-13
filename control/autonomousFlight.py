@@ -60,6 +60,7 @@ def autonomousController(drone,destinationLat,destinationLon):
         print "Current Latitude: ", currentLat
         print "Current Longitude: ", currentLon 
         print "Current Signal Strength: ", signalStrength.main()
+        time.sleep(0.1)
 
         flightDistance = haversine(currentLon, currentLat, destinationLon, destinationLat)
         print "Flight distance: " + str(flightDistance)
@@ -68,7 +69,7 @@ def autonomousController(drone,destinationLat,destinationLon):
             
         flightController(drone,flightBearing,droneSpeed)
 
-        if abs(flightDistance) <= 1 or drone.getKey():
+        if abs(flightDistance) <= 2 or drone.getKey():
                 flightEnd = True
 
     drone.stop()
@@ -129,7 +130,9 @@ if __name__ == '__main__':
         for i in range(1,4):
             print "Destination Coordinates: ", latList[i], lonList[i]
             autonomousController(drone, latList[i], lonList[i])
-            ssList.append(signalStrength.main()) #TODO: check if ss is None
+            destSignalStrength = signalStrength.main()
+            print "Destination Signal Strength: ", destSignalStrength
+            ssList.append(destSignalStrength) #TODO: check if ss is None
 
         print "Signal Strengths: ", ssList
         
