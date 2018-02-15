@@ -1,11 +1,10 @@
 #!/bin/bash
-#Add "sudo sh /etc/init.d/CustomNetworkConfig.sh" to /etc/rc.local
 chmod 755 /etc/init.d/CustomNetworkConfig.sh
 chmod a+x /etc/init.d/CustomNetworkConfig.sh
 chmod 777 /etc/init.d/CustomNetworkConfig.sh
 
-chmod +x ./ppp-creator.sh
-sudo ./ppp-creator.sh EVERYWHERE ttyUSB3
+chmod +x drone-hotspot/rpi/ppp-creator.sh
+sudo drone-hotspot/rpi/ppp-creator.sh EVERYWHERE ttyUSB3
 sudo pppd call gprs&
 sleep 5
 sudo route add default dev ppp0

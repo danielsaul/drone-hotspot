@@ -290,7 +290,7 @@ def main():
     print('EC25 module is connected and Sim Card is READY \r\n')
     print('-------------------------------------\r\n')
     
-SerialPort = serial.Serial("COM7", 115200, timeout = 1)
+SerialPort = serial.Serial("/dev/ttyUSB3", 115200, timeout = 1)
 main()
 
 

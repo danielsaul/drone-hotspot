@@ -7,13 +7,27 @@ import time, sys
 import threading
 from math import *
 import ps_drone
+import ultrasonic_distance
+import RPi.GPIO as GPIO
+ 
+#GPIO Mode (BOARD / BCM)
+GPIO.setmode(GPIO.BCM)
+ 
+#set GPIO Pins for Ultrasonic sensor
+GPIO_TRIGGER = 18
+GPIO_ECHO = 17
+ 
+#set GPIO direction (IN / OUT)
+GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
+GPIO.setup(GPIO_ECHO, GPIO.IN)
 
 sys.path.insert(0, '/home/pi/drone-hotspot/hardware')
-# import signalStrength
+import signalStrength
+from gpsCoordinate import *
 
 os.system('clear')  # clear the terminal (optional)
 
-gpsd = None  # seting the global variable
+gpsd = None  # setting the global variable
 
 class GpsPoller(threading.Thread):
     def __init__(self):
@@ -70,15 +84,21 @@ def flightController(drone, flight_bearing, drone_speed):
 
     drone_yaw = drone.NavData["demo"][2][2]
     print "drone angle" , drone_yaw
+    drone_yaw = (drone_yaw + 360) % 360
     turning_angle = flight_bearing - drone_yaw
     if turning_angle > 180:
         turning_angle = turning_angle - 360
+    elif turning_angle < -180:
+        turning_angle = turning_angle + 360
     print "turning angle" , turning_angle
-    # drone.turnAngle(turning_angle, 1, 1)
-    drone.move(0.0,drone_speed,0.0,turning_angle)
+    drone.turnAngle(turning_angle, 1, 1)
+    time.sleep(0.1)
+    # drone.move(0.0,drone_speed,0.0,turning_angle)
+    drone.moveForward()
+    time.sleep(1.0)
     print "moving..."
 
-if __name__ == '__main__':
+if __name__ == '__main__':   
     # Drone startup sequence
     drone = ps_drone.Drone()
     drone.startup()
@@ -88,41 +108,58 @@ if __name__ == '__main__':
     drone.useDemoMode(False)
     drone.getNDpackage(["demo"])
     time.sleep(1.0)
+    drone.trim()
+    drone.getSelfRotation(5)
     
     # Create gps thread
-    gpsp = GpsPoller()
-    gpsp.start()
+    #gpsp = GpsPoller()
+    #gpsp.start()
 
     try:
         # os.system('clear')
+        
+        # Retrieve 4G signal strength
+        droneSignalStrength = signalStrength.main()
+        print "initial signal strength:" , droneSignalStrength
+        
         # Start flight sequence
-        while gpsd.fix.latitude == 0 or gpsd.fix.longitude == 0 or \
-              isnan(gpsd.fix.latitude) or isnan(gpsd.fix.longitude):
-            time.sleep(0.1)
-            print "Waiting for GPS fix"
+#        while gpsd.fix.latitude == 0 or gpsd.fix.longitude == 0 or \
+#              isnan(gpsd.fix.latitude) or isnan(gpsd.fix.longitude):
+#            time.sleep(0.1)
+#            print "Waiting for GPS fix"
+
+        while get_coordinates('Get GPS coordinate\r\n') == (None,None):
+            print "waiting for GPS fix"
+        initialLat,initialLon = get_coordinates('Get GPS coordinate\r\n')
+        print initialLat, initialLon
 
         drone.takeoff()
         while drone.NavData["demo"][0][2]:  time.sleep(0.1)
 
-        flightTime = 2.5
+        flightTime = 10
         refTime = time.time()
         flightEnd = False
 
         # Assume the drone max speed is 5m/s
-        droneSpeed = 1 / 5
+        droneSpeed = 0.1 / 5
         drone.setSpeed(droneSpeed)
 
         while not flightEnd:
             # Receive Destination GPS Coordinates
-            destinationLat = 0
-            destinationLon = 0
+            destinationLon = -0.13826
+            destinationLat = 51.52699
+#            currentLon = -0.13814
+#            currentLat = 51.52689
 
             # Receive Current GPS Coordinates
-            currentLat = gpsd.fix.latitude
-            currentLon = gpsd.fix.longitude
-            if isnan(currentLat) or isnan(currentLon):
-                print "waiting for coordinate"
-                drone.stop()
+            currentLat,currentLon = get_coordinates('Get GPS coordinate\r\n')
+#            print "Current Latitude: ", currentLat,
+#            print "Current Longitude: ", currentLon 
+#            currentLat = gpsd.fix.latitude
+#            currentLon = gpsd.fix.longitude
+#            while currentLat == None or currentLon == None:
+#                print "waiting for coordinate"
+#                drone.stop()
 
             # Compute actual distance and direction
             flightDistance = haversine(currentLon, currentLat, destinationLon, destinationLat)
@@ -130,18 +167,27 @@ if __name__ == '__main__':
             flightBearing = gpsBearing(currentLon, currentLat, destinationLon, destinationLat)
             print "Flight bearing: " + str(flightBearing)
             
+            # Retrieve ultrasound sensor distance
+#            dist = ultrasonic_distance.distance()/100
+#            print "obstacle distance: " + str(dist)
+
             flightController(drone, flightBearing, droneSpeed)
-            if abs(flightDistance) <= 1 or drone.getKey() or time.time() - refTime >= flightTime:
+            
+            # Retrieve 4G signal strength
+            droneSignalStrength = signalStrength.main()
+            print "current signal strength:" , droneSignalStrength                   
+            if abs(flightDistance) <= 1 or drone.getKey() \
+               or time.time() - refTime >= flightTime:
                 flightEnd = True
 
         drone.stop()
-        drone.land()
+        #drone.land()
 
     except (KeyboardInterrupt, SystemExit):  # when you press ctrl+c
         print "\nKilling Thread..."
         drone.stop()
         drone.land()
-        gpsd.running = False
-        gpsd.join()  # wait for the thread to finish what it's doing
+        #gpsd.running = False
+        #gpsd.join()  
 
     print "Done.\nExiting."
