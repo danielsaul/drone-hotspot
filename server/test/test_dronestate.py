@@ -7,7 +7,7 @@ class TestDroneState(unittest.TestCase):
 
     def test_initial_state(self):
         state = {
-            'status': "waiting",
+            'status': None,
             'location': {
                 'latitude': None,
                 'longitude': None
@@ -37,6 +37,25 @@ class TestDroneState(unittest.TestCase):
         self.assertEqual(self.func.state, state)
         self.func.reset_state()
         self.test_initial_state()
+
+    def test_update_withnothing(self):
+        prev = self.func.state.copy()
+        self.func.update_state({})
+        self.assertEqual(self.func.state, prev)
+
+    def test_no_update_withnewkeys(self):
+        prev = self.func.state.copy()
+        self.func.update_state({'newkey': 0, 'status': 'test'})
+        self.assertEqual(self.func.state, prev)
+
+    def test_update_withexistingkeys(self):
+        prev = self.func.state.copy()
+        self.func.update_state({'status': 'test', 'battery': 50})
+        self.assertNotEqual(prev, self.func.state)
+        self.assertEqual(self.func.state['status'], 'test')
+        self.assertEqual(self.func.state['battery'], 50)
+        self.assertEqual(self.func.state['altitude'], prev['altitude'])
+
 
 if __name__ == '__main__':
     unittest.main()

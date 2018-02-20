@@ -6,7 +6,7 @@ class DroneState(object):
 
     def reset_state(self):
         self.state = {
-            'status': "waiting",
+            'status': None,
             'location': {
                 'latitude': None,
                 'longitude': None
@@ -17,3 +17,11 @@ class DroneState(object):
             'battery': None,
             'signal': None
         }
+
+    def update_state(self, new):
+        noNewKeys = all([key in self.state for key in new.keys()])
+        if noNewKeys:
+            self.state.update(new)
+
+    def get_state(self):
+        pass
