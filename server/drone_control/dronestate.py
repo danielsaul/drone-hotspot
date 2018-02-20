@@ -24,4 +24,9 @@ class DroneState(object):
             self.state.update(new)
 
     def get_state(self):
-        pass
+        if self.state['status'] is None:
+            raise ValueError('State has not been updated.')
+            return
+        return self.state
+
+

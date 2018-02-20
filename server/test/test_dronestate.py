@@ -56,6 +56,14 @@ class TestDroneState(unittest.TestCase):
         self.assertEqual(self.func.state['battery'], 50)
         self.assertEqual(self.func.state['altitude'], prev['altitude'])
 
+    def test_get_whennotready(self):
+        self.assertRaises(ValueError, self.func.get_state)
+
+    def test_get_whenready(self):
+        self.func.state['status'] = 'waiting'
+        state = self.func.get_state()
+        self.assertEqual(self.func.state, state)
+
 
 if __name__ == '__main__':
     unittest.main()
