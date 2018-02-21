@@ -19,6 +19,16 @@ def emit_drone_status(state):
 
     sio.emit('updateDroneStatus', state)
 
+@sio.on('connect')
+def connect(sid, env):
+    global pipe
+    pipe.send(('connected', True))
+
+@sio.on('disconnect')
+def disconnect(sid):
+    global pipe
+    pipe.send(('connected', False))
+
 @sio.on('action')
 def action(sid, data):
     global pipe

@@ -43,6 +43,16 @@ class TestSocket(unittest.TestCase):
         server.assert_called_once()
 
     @mock.patch('drone_control.socket.pipe')
+    def test_connect_sentoverpipe(self, pipe):
+        connect(0, 0)
+        pipe.send.assert_called_once_with(('connected', True))
+
+    @mock.patch('drone_control.socket.pipe')
+    def test_disconnect_sentoverpipe(self, pipe):
+        disconnect(0)
+        pipe.send.assert_called_once_with(('connected', False))
+
+    @mock.patch('drone_control.socket.pipe')
     def test_action_sentoverpipe(self, pipe):
         action(0, 'takeoff')
         pipe.send.assert_called_once_with(('action', 'takeoff'))
