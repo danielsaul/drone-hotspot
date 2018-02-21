@@ -1,4 +1,5 @@
 import unittest
+import copy
 from drone_control.controlstate import ControlState
 
 class TestControlState(unittest.TestCase):
@@ -55,22 +56,54 @@ class TestControlState(unittest.TestCase):
         self.test_initial_state()
 
     def test_update_withnothing(self):
-        prev = self.func.state.copy()
+        prev = copy.deepcopy(self.func.state)
         self.func.update_state({})
         self.assertEqual(self.func.state, prev)
 
     def test_no_update_withnewkeys(self):
-        prev = self.func.state.copy()
+        prev = copy.deepcopy(self.func.state)
         self.func.update_state({'newkey': 0, 'mode': 'test'})
         self.assertEqual(self.func.state, prev)
 
     def test_update_withexistingkeys(self):
-        prev = self.func.state.copy()
+        prev = copy.deepcopy(self.func.state)
         self.func.update_state({'mode': 'test', 'manual': {}})
         self.assertNotEqual(prev, self.func.state)
         self.assertEqual(self.func.state['mode'], 'test')
         self.assertEqual(self.func.state['manual'], {})
         self.assertEqual(self.func.state['flytopoint'], prev['flytopoint'])
+
+    def test_update_location(self):
+        prev = copy.deepcopy(self.func.state)
+        self.func.update_location({'latitude': 5, 'longitude': 10})
+        self.assertNotEqual(prev, self.func.state)
+        self.assertEqual(self.func.state['location']['latitude'], 5)
+        self.assertEqual(self.func.state['location']['longitude'], 10)
+        self.assertEqual(self.func.state['flytopoint'], prev['flytopoint'])
+
+    def test_update_manual(self):
+        prev = copy.deepcopy(self.func.state)
+        self.func.update_manual({'move': {'x': 1, 'y': 1}})
+        self.assertNotEqual(prev, self.func.state)
+        self.assertEqual(self.func.state['manual']['move'], {'x':1, 'y':1})
+        self.assertEqual(self.func.state['manual']['altitude'], prev['manual']['altitude'])
+        self.assertEqual(self.func.state['manual']['yaw'], prev['manual']['yaw'])
+        self.assertEqual(self.func.state['flytopoint'], prev['flytopoint'])
+
+    def test_update_flytopoint(self):
+        prev = copy.deepcopy(self.func.state)
+        self.func.update_flytopoint({'location': {'latitude': 1, 'longitude': 1}})
+        self.assertNotEqual(prev, self.func.state)
+        self.assertEqual(self.func.state['flytopoint']['location'], {'latitude':1, 'longitude':1})
+        self.assertEqual(self.func.state['flytopoint']['altitude'], prev['flytopoint']['altitude'])
+        self.assertEqual(self.func.state['manual'], prev['manual'])
+
+    def test_set_mode(self):
+        prev = copy.deepcopy(self.func.state)
+        self.func.set_mode({'mode': 'manual'})
+        self.assertNotEqual(prev, self.func.state)
+        self.assertEqual(self.func.state['mode'], 'manual')
+        self.assertEqual(self.func.state['manual'], prev['manual'])
 
     def test_get_whennotready(self):
         self.assertRaises(ValueError, self.func.get_state)

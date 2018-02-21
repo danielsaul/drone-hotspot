@@ -31,6 +31,18 @@ class ControlState(object):
         if noNewKeys:
             self.state.update(new)
 
+    def update_location(self, new):
+        self.state['location'].update(new)
+
+    def update_manual(self, new):
+        self.state['manual'].update(new)
+
+    def update_flytopoint(self, new):
+        self.state['flytopoint'].update(new)
+
+    def set_mode(self, new):
+        self.state['mode'] = new['mode']
+
     def get_state(self):
         if self.state['mode'] is None:
             raise ValueError('State has not been updated.')
