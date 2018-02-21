@@ -2,12 +2,16 @@
 class Control(object):
     def __init__(self):
         self.pipe = None
+        self.control_state = None
+        self.app_connected = False
 
     def consumeControlQueue(self):
         action = None
 
         while self.pipe.poll():
             cmd, data = self.pipe.recv()
+            if cmd == 'connected':
+                self.app_connected = data
             if cmd == 'action':
                 action = data
             if cmd == 'update_all':

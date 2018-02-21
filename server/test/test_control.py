@@ -15,6 +15,24 @@ class TestControl(unittest.TestCase):
         self.c.pipe.poll.assert_called_once()
 
     @mock.patch.object(Control, 'processAction')
+    def test_consumeControlQueue_Connection(self, action):
+        self.c.pipe = mock.Mock()
+        self.c.control_state = mock.Mock()
+        self.c.pipe.poll.side_effect = [True, False]
+        self.c.pipe.recv.side_effect = [('connected', True)]
+
+        self.c.consumeControlQueue()
+
+        self.assertEquals(self.c.app_connected, True)
+
+        self.c.pipe.poll.side_effect = [True, False]
+        self.c.pipe.recv.side_effect = [('connected', False)]
+
+        self.c.consumeControlQueue()
+
+        self.assertEquals(self.c.app_connected, False)
+
+    @mock.patch.object(Control, 'processAction')
     def test_consumeControlQueue(self, action):
         msgs = [
             ('action', 'takeoff'),
