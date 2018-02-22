@@ -1,11 +1,13 @@
 import ps_drone
+from controlstate import ControlState
 
 class Control(object):
-    def __init__(self):
-        self.pipe = None
-        self.control_state = None
-        self.app_connected = False
+    def __init__(self, pipe):
+        self.pipe = pipe
         self.drone = ps_drone.Drone()
+
+        self.control_state = ControlState()
+        self.app_connected = False
 
     def consumeControlQueue(self):
         action = None

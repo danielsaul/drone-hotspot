@@ -5,8 +5,8 @@ from drone_control.control import Control
 
 class TestControlQueue(unittest.TestCase):
     def setUp(self):
-        self.c = Control()
-        self.c.pipe = mock.Mock()
+        pipe = mock.Mock()
+        self.c = Control(pipe)
         self.c.control_state = mock.Mock()
         self.c.drone = mock.Mock()
 
