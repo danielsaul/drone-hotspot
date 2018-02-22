@@ -2,12 +2,15 @@ import unittest
 import mock
 from drone_control.control import Control
 
-class TestControl(unittest.TestCase):
+
+class TestControlQueue(unittest.TestCase):
     def setUp(self):
         self.c = Control()
+        self.c.pipe = mock.Mock()
+        self.c.control_state = mock.Mock()
+        self.c.drone = mock.Mock()
 
     def test_consumeControlQueue_Empty(self):
-        self.c.pipe = mock.Mock()
         self.c.pipe.poll.return_value = False
 
         self.c.consumeControlQueue()
@@ -16,8 +19,6 @@ class TestControl(unittest.TestCase):
 
     @mock.patch.object(Control, 'processAction')
     def test_consumeControlQueue_Connection(self, action):
-        self.c.pipe = mock.Mock()
-        self.c.control_state = mock.Mock()
         self.c.pipe.poll.side_effect = [True, False]
         self.c.pipe.recv.side_effect = [('connected', True)]
 
@@ -46,11 +47,8 @@ class TestControl(unittest.TestCase):
         ]
         n = len(msgs)
 
-        self.c.pipe = mock.Mock()
         self.c.pipe.poll.side_effect = [True]*n + [False]*2
         self.c.pipe.recv.side_effect = msgs
-
-        self.c.control_state = mock.Mock()
 
         self.c.consumeControlQueue()
 

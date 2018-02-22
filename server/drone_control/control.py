@@ -1,9 +1,11 @@
+import ps_drone
 
 class Control(object):
     def __init__(self):
         self.pipe = None
         self.control_state = None
         self.app_connected = False
+        self.drone = ps_drone.Drone()
 
     def consumeControlQueue(self):
         action = None
