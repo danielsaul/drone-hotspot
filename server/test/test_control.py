@@ -1,4 +1,5 @@
 import unittest
+import sys
 import mock
 from drone_control.control import Control
 
@@ -8,7 +9,55 @@ class TestControlQueue(unittest.TestCase):
         pipe = mock.Mock()
         self.c = Control(pipe)
         self.c.control_state = mock.Mock()
-        self.c.drone = mock.Mock()
+        self.c.drone = mock.MagicMock()
+
+    def test_startDrone_startupfail(self):
+        self.c.drone.startup.side_effect = sys.exit
+        
+        self.c.startDrone()
+
+        self.c.drone.reset.assert_not_called()
+        self.assertEquals(self.c.drone_connected, False)
+
+    @mock.patch('time.sleep')
+    def test_startDrone_resetfail(self, sleep):
+        self.c.drone.getBattery.side_effect = [(-1,0)]*50
+       
+        self.c.startDrone()
+
+        self.assertEquals(sleep.call_count, 21)
+        self.c.drone.useDemoMode.assert_not_called()
+        self.assertEquals(self.c.drone_connected, False)
+
+    @mock.patch('time.sleep')
+    def test_startDrone_success(self, sleep):
+        self.c.drone.getBattery.side_effect = [(-1,0)]*10 + [(1,100)]
+
+        self.c.startDrone()
+
+        self.assertEquals(sleep.call_count, 10)
+        self.c.drone.useDemoMode.assert_called_once()
+        self.c.drone.getNDpackage.assert_called_once()
+        self.assertEquals(self.c.drone_connected, True)
+
+    @mock.patch('time.sleep')
+    def test_takeoffDrone_calib(self, sleep):
+        self.c.drone.NavData.__getitem__.return_value = [(0,0, False)]
+        
+        self.c.takeoffDrone()
+
+        self.c.drone.trim.assert_called_once()
+        self.c.drone.getSelfRotation.assert_called_once()
+        self.c.drone.mtrim.assert_called_once()
+        self.assertEquals(self.c.drone_calibrated, True)
+
+    @mock.patch('time.sleep')
+    def test_takeoffDrone(self, sleep):
+        self.c.drone.NavData.__getitem__.side_effect = [[(0,0, True)]]*5 + [[(0,0, False)]]
+        
+        self.c.takeoffDrone()
+
+        self.c.drone.takeoff.assert_called_once()
 
     def test_consumeControlQueue_Empty(self):
         self.c.pipe.poll.return_value = False
