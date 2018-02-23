@@ -1,6 +1,7 @@
 import time
 import ps_drone
 from controlstate import ControlState
+from dronestate import DroneState
 
 class Control(object):
     def __init__(self, pipe):
@@ -8,9 +9,11 @@ class Control(object):
         self.drone = ps_drone.Drone()
 
         self.control_state = ControlState()
+        self.drone_state = DroneState()
         self.app_connected = False
         self.drone_connected = False
         self.drone_calibrated = False
+        self.returning = False
 
     def startDrone(self):
         try:
@@ -54,7 +57,7 @@ class Control(object):
 
     def consumeControlQueue(self):
         action = None
-
+        
         while self.pipe.poll(): 
             cmd, data = self.pipe.recv()
             if cmd == 'connected':
@@ -75,5 +78,13 @@ class Control(object):
         if action:
             self.processAction(action)
 
-    def processAction(self):
-        pass
+    def processAction(self, action):
+        if action == 'takeoff' and self.drone_state.state['status'] == 'waiting':
+            self.takeoffDrone()
+        if action == 'land' and self.drone_state.state['status'] == 'flying':
+            self.drone.land()
+        if action == 'return' and self.drone_state.state['status'] == 'flying':
+            self.returning = True
+        if action == 'abort' and self.drone_state.state['status'] == 'flying':
+            self.drone.reset()
+
