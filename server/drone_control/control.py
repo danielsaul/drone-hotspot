@@ -1,4 +1,5 @@
 import time
+import datetime
 import ps_drone
 from controlstate import ControlState
 from dronestate import DroneState
@@ -11,9 +12,23 @@ class Control(object):
         self.control_state = ControlState()
         self.drone_state = DroneState()
         self.app_connected = False
+        self.app_disconnected_timer = None
         self.drone_connected = False
         self.drone_calibrated = False
         self.returning = False
+
+    def connectionCheck(self):
+        # If app not connected and flying, stop drone
+        if not self.app_connected and self.drone_state.state['status'] == 'flying':
+            self.drone.stop()
+            if not self.app_disconnected_timer:
+                self.app_disconnected_timer = datetime.datetime.now()
+            elif self.app_disconnected_timer + datetime.timedelta(minutes = 2) < datetime.datetime.now():
+                self.drone.land()
+        else:
+            self.app_disconnected_timer = None
+                
+        return self.app_connected
 
     def startDrone(self):
         try:

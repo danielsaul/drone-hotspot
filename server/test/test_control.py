@@ -1,6 +1,7 @@
 import unittest
 import sys
 import mock
+from datetime import datetime
 from drone_control.control import Control
 
 
@@ -11,6 +12,62 @@ class TestControlQueue(unittest.TestCase):
         self.c.control_state = mock.MagicMock()
         self.c.drone_state = mock.MagicMock()
         self.c.drone = mock.MagicMock()
+
+    def test_connectionCheck_true(self):
+        self.c.app_connected = True
+        result = self.c.connectionCheck()
+        self.assertEquals(result, True)
+        self.assertIs(self.c.app_disconnected_timer, None)
+        self.c.drone.stop.assert_not_called()
+
+    def test_connectionCheck_false(self):
+        self.c.app_connected = False
+        self.c.drone_state.state.__getitem__.return_value = "flying"
+        result = self.c.connectionCheck()
+        self.assertEquals(result, False)
+        self.assertIsNot(self.c.app_disconnected_timer, None)
+        self.c.drone.stop.assert_called_once()
+        self.c.drone.land.assert_not_called()
+
+    @mock.patch('drone_control.control.datetime.datetime')
+    def test_connectionCheck_falsetimer(self, dt):
+        dt.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        self.c.app_connected = False
+        self.c.drone_state.state.__getitem__.return_value = "flying"
+        self.c.app_disconnected_timer = datetime(2018, 2, 1, 12, 30, 00)
+        dt.now.return_value = datetime(2018, 2, 1, 12, 31, 30) #1.5 mins
+
+        result = self.c.connectionCheck()
+
+        self.assertEquals(result, False)
+        self.c.drone.stop.assert_called_once()
+        self.c.drone.land.assert_not_called()
+
+    @mock.patch('drone_control.control.datetime.datetime')
+    def test_connectionCheck_falsetimerland(self, dt):
+        dt.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        self.c.app_connected = False
+        self.c.drone_state.state.__getitem__.return_value = "flying"
+        self.c.app_disconnected_timer = datetime(2018, 2, 1, 12, 30, 00)
+        dt.now.return_value = datetime(2018, 2, 1, 12, 32, 30) #2.5 mins
+
+        result = self.c.connectionCheck()
+
+        self.assertEquals(result, False)
+        self.c.drone.stop.assert_called_once()
+        self.c.drone.land.assert_called_once()
+
+    def test_connectionCheck_truetimerreset(self):
+        self.c.app_connected = True
+        self.c.drone_state.state.__getitem__.return_value = "flying"
+        self.c.app_disconnected_timer = datetime(2018, 2, 1, 12, 30, 00)
+
+        result = self.c.connectionCheck()
+
+        self.assertEquals(result, True)
+        self.assertIs(self.c.app_disconnected_timer, None)
+        self.c.drone.stop.assert_not_called()
+        self.c.drone.land.assert_not_called()
 
     def test_startDrone_startupfail(self):
         self.c.drone.startup.side_effect = sys.exit
