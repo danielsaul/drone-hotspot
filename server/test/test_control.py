@@ -8,10 +8,63 @@ from drone_control.control import Control
 class TestControlQueue(unittest.TestCase):
     def setUp(self):
         pipe = mock.Mock()
-        self.c = Control(pipe)
+        dronestatedict = {}
+        self.c = Control(dronestatedict, pipe)
         self.c.control_state = mock.MagicMock()
         self.c.drone_state = mock.MagicMock()
         self.c.drone = mock.MagicMock()
+
+
+    def test_flyManual_allzero(self):
+        self.c.control_state.state = {
+            'manual': {
+                'move': {
+                    'x': 0.0,
+                    'y': 0.0
+                },
+                'altitude': 0.0,
+                'yaw': 0.0
+            }
+        }
+
+        self.c.flyManual()
+
+        self.c.drone.stop.assert_called_once()
+        self.c.drone.move.assert_not_called()
+
+    def test_flyManual_move(self):
+        self.c.control_state.state = {
+            'manual': {
+                'move': {
+                    'x': 0.4,
+                    'y': 0.3
+                },
+                'altitude': 0.2,
+                'yaw': 0.1
+            }
+        }
+
+        self.c.flyManual()
+
+        self.c.drone.stop.assert_not_called()
+        self.c.drone.move.assert_called_once_with(0.4, 0.3, 0.2, 0.1)
+
+    def test_getDroneData_old(self):
+        self.c.prev_data_count = 10
+        self.c.drone.NavDataCount = 10
+
+        self.c.getDroneData()
+
+        self.c.drone_state.update_state.assert_not_called()
+
+    def test_getDroneData_new(self):
+        self.c.prev_data_count = 10
+        self.c.drone.NavDataCount = 11
+
+        self.c.getDroneData()
+
+        self.assertEquals(self.c.prev_data_count, self.c.drone.NavDataCount)
+        self.c.drone_state.update_state.assert_called_once()
 
     def test_connectionCheck_true(self):
         self.c.app_connected = True

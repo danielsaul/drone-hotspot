@@ -5,17 +5,98 @@ from controlstate import ControlState
 from dronestate import DroneState
 
 class Control(object):
-    def __init__(self, pipe):
+    def __init__(self, drone_state_dict, pipe):
         self.pipe = pipe
         self.drone = ps_drone.Drone()
 
         self.control_state = ControlState()
         self.drone_state = DroneState()
+        self.drone_state_dict = drone_state_dict
+        self.prev_data_count = 0
         self.app_connected = False
         self.app_disconnected_timer = None
         self.drone_connected = False
         self.drone_calibrated = False
         self.returning = False
+
+    def start(self):
+        # Connect to drone
+        while not self.drone_connected:
+            self.startDrone()
+
+        # Enter control loop
+        self.loop()
+
+    def loop(self):
+        while True:
+            iteration()
+
+    def iteration(self):
+
+        # Consume control messages from socket/app
+        self.consumeControlQueue()
+
+        # If app is not connected
+        if not self.connectionCheck():
+            return
+
+        # Get latest drone data
+        self.getDroneData()
+
+        # TODO: Get GPS location
+        # Update state with GPS and distance
+
+        # TODO: Get 4G Signal strength
+        
+        # Send updated drone state to socket/app
+        self.drone_state_dict.update(self.drone_state.state)
+
+        # Drone is flying, instruct it
+        if self.drone_state.state['status'] == 'flying':
+            
+            if returning:
+                # TODO: Return to home functionality
+                pass
+
+            elif self.control_state.state['mode'] == 'manual':
+                # Manual control
+                self.flyManual()
+
+            elif self.control_state.state['mode'] == 'flytopoint':
+                # TODO: Fly to point
+                pass
+
+            elif self.control_state.state['mode'] == 'autonomous':
+                # TODO: Autonomous
+                pass
+
+    def flyManual(self):
+        m = self.control_state.state['manual']
+        
+        if m['move']['x'] == 0.0 and m['move']['y'] == 0.0 and m['altitude'] == 0.0 and m['yaw'] == 0.0:
+            self.drone.stop()
+        else:
+            self.drone.move(m['move']['x'], m['move']['y'], m['altitude'], m['yaw'])
+
+    def getDroneData(self):
+        if self.prev_data_count >= self.drone.NavDataCount:
+            return
+        
+        self.prev_data_count = self.drone.NavDataCount
+        new = {}
+
+        if self.drone.NavData['demo'][0][2]:    # Landed/Waiting
+            new['status'] = "waiting"
+        elif self.drone.NavData['demo'][0][3]:  # Flying
+            new['status'] = "flying"
+        elif self.drone.NavData['demo'][0][4]:  # Landing
+            new['status'] = "landing"
+
+        new['battery'] = self.drone.NavData['demo'][1]
+        new['altitude'] = self.drone.NavData['demo'][3] / 100
+        new['speed'] = self.drone.NavData['demo'][4][0] / 1000
+
+        self.drone_state.update_state(new)
 
     def connectionCheck(self):
         # If app not connected and flying, stop drone
