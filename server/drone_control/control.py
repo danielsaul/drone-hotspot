@@ -47,6 +47,7 @@ class Control(object):
 
         self.drone.takeoff()
 
+        # Wait for takeoff to complete
         while self.drone.NavData["demo"][0][2]:
             time.sleep(0.1)
 
@@ -58,6 +59,7 @@ class Control(object):
     def consumeControlQueue(self):
         action = None
         
+        # Loop over messages from phone app
         while self.pipe.poll(): 
             cmd, data = self.pipe.recv()
             if cmd == 'connected':
@@ -75,6 +77,7 @@ class Control(object):
             if cmd == 'set_mode':
                 self.control_state.set_mode(data)
 
+        # Only perform the most recent action
         if action:
             self.processAction(action)
 
