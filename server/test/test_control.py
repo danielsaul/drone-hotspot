@@ -96,6 +96,7 @@ class TestControlQueue(unittest.TestCase):
         self.assertEquals(sleep.call_count, 10)
         self.c.drone.useDemoMode.assert_called_once()
         self.c.drone.getNDpackage.assert_called_once()
+        self.c.drone.setConfig.assert_called_once()
         self.assertEquals(self.c.drone_connected, True)
 
     @mock.patch('time.sleep')

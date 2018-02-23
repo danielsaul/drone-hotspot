@@ -52,6 +52,9 @@ class Control(object):
         self.drone.useDemoMode(False)
         self.drone.getNDpackage(["demo"])
 
+        # Set to outdoor mode
+        self.drone.setConfig('control:outdoor', 'True') 
+
         self.drone_connected = True
 
     def takeoffDrone(self):
