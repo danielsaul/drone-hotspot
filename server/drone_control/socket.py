@@ -15,7 +15,7 @@ def emit_drone_status(state):
     required = set(['status', 'location', 'altitude', 'distance', 'speed', 'battery', 'signal'])
     state_keys = set(state.keys())
     if required == state_keys:
-        sio.emit('updateDroneStatus', state)
+        sio.emit('updateDroneStatus', state.copy())
 
 @sio.on('connect')
 def connect(sid, env):
