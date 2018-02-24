@@ -27,8 +27,8 @@ class TestModem(unittest.TestCase):
         self.assertEquals(res, False)
         self.assertEquals(self.m.ser_connected, False)
 
-    def test_serWrite(self):
-        res = self.m.serWrite("AT")
+    def test_serWriteLine(self):
+        res = self.m.serWriteLine("AT")
 
         self.m.ser.write.assert_called_once()
 

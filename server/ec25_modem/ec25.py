@@ -17,8 +17,8 @@ class Modem(object):
         return self.ser_connected
 
 
-    def serWrite(self, string):
-        encoded = bytes(string).encode('utf-8')
+    def serWriteLine(self, string):
+        encoded = bytes(string+"\r\n").encode('utf-8')
         res = False
         try:
             self.ser.write(encoded)
