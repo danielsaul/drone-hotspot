@@ -61,4 +61,4 @@ def start(drone_state, pipe_end):
     global pipe
     pipe = pipe_end
     sio.start_background_task(background_loop, drone_state)
-    eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
+    eventlet.wsgi.server(eventlet.listen(('', 8000)), app, log_output=False)
