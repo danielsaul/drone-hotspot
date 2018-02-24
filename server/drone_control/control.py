@@ -33,7 +33,7 @@ class Control(object):
 
     def loop(self):
         while True:
-            iteration()
+            self.iteration()
 
     def iteration(self):
 
