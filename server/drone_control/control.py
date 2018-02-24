@@ -23,6 +23,7 @@ class Control(object):
         # Connect to drone
         print "Waiting for drone"
         while not self.drone_connected:
+            self.consumeControlQueue()
             self.startDrone()
             time.sleep(3)
         
@@ -166,8 +167,11 @@ class Control(object):
         while self.pipe.poll(): 
             cmd, data = self.pipe.recv()
             if cmd == 'connected':
+                if data and not self.app_connected:
+                    print "App Connected"
+                elif not data and self.app_connected:
+                    print "App Disconnected"
                 self.app_connected = data
-                print "App Connected" if data else "App Disconnected"
             if cmd == 'action':
                 action = data
             if cmd == 'update_all':
@@ -187,6 +191,9 @@ class Control(object):
 
     def processAction(self, action):
         print "Action: " + action
+        if not self.drone_connected:
+            return
+
         if action == 'takeoff' and self.drone_state.state['status'] == 'waiting':
             self.takeoffDrone()
         if action == 'land' and self.drone_state.state['status'] == 'flying':
