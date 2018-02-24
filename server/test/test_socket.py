@@ -8,10 +8,11 @@ class TestSocket(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_emitDroneStatus_WrongState(self):
-        with self.assertRaises(ValueError):
-            emit_drone_status({})
-            emit_drone_status({'status': "test", altitude: 5})
+    @mock.patch('socketio.Server.emit')
+    def test_emitDroneStatus_WrongState(self, emit):
+        emit_drone_status({})
+        emit.assert_not_called()
+
 
     @mock.patch('socketio.Server.emit')
     def test_emitDroneStatus_CorrectState(self, emit):
