@@ -1,0 +1,4 @@
+#! /usr/bin/env python
+import drone_control
+
+drone_control.main()
