@@ -108,9 +108,9 @@ class Drone(object):
 			socket.socket().connect((self.DroneIP, 21))
 			socket.socket().close()
 		except:
-			self.printRed()
-			print "Drone is not online"
-			self.printDefault()
+			#self.printRed()
+			#print "Drone is not online"
+			#self.printDefault()
 			sys.exit(9)
 
 		# Internal variables
