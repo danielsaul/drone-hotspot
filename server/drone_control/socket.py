@@ -14,10 +14,8 @@ def background_loop(drone_state):
 def emit_drone_status(state):
     required = set(['status', 'location', 'altitude', 'distance', 'speed', 'battery', 'signal'])
     state_keys = set(state.keys())
-    if required != state_keys:
-        raise ValueError("State does not include all the required keys")
-
-    sio.emit('updateDroneStatus', state)
+    if required == state_keys:
+        sio.emit('updateDroneStatus', state)
 
 @sio.on('connect')
 def connect(sid, env):
