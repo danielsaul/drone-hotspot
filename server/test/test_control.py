@@ -16,7 +16,9 @@ class TestControlQueue(unittest.TestCase):
 
     @mock.patch.object(Control, 'startDrone')
     @mock.patch.object(Control, 'loop')
-    def test_start(self, loop, start):
+    @mock.patch.object(Control, 'consumeControlQueue')
+    @mock.patch('time.sleep')
+    def test_start(self, sleep, cq, loop, start):
         self.c.drone_connected = False
         def setTrue(): self.c.drone_connected = True
         start.side_effect = setTrue
@@ -236,42 +238,50 @@ class TestControlQueue(unittest.TestCase):
 
     @mock.patch.object(Control, 'takeoffDrone')
     def test_processAction_takeoff(self, takeoff):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "waiting"
         self.c.processAction('takeoff')
         takeoff.assert_called_once()
 
     @mock.patch.object(Control, 'takeoffDrone')
     def test_processAction_takeoffflying(self, takeoff):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "flying"
         self.c.processAction('takeoff')
         takeoff.assert_not_called()
 
     def test_processAction_land(self):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "flying"
         self.c.processAction('land')
         self.c.drone.land.assert_called_once()
 
     def test_processAction_landwaiting(self):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "waiting"
         self.c.processAction('land')
         self.c.drone.land.assert_not_called()
 
     def test_processAction_return(self):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "flying"
         self.c.processAction('return')
         self.assertEquals(self.c.returning, True)
 
     def test_processAction_returnwaiting(self):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "waiting"
         self.c.processAction('return')
         self.assertEquals(self.c.returning, False)
 
     def test_processAction_abort(self):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "flying"
         self.c.processAction('abort')
         self.c.drone.reset.assert_called_once()
 
     def test_processAction_abortwaiting(self):
+        self.c.drone_connected = True
         self.c.drone_state.state.__getitem__.return_value = "waiting"
         self.c.processAction('abort')
         self.c.drone.reset.assert_not_called()
