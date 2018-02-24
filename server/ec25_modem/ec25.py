@@ -15,3 +15,16 @@ class Modem(object):
             print "EC25 serial port error connecting: %s" % self.port
 
         return self.ser_connected
+
+
+    def serWrite(self, string):
+        encoded = bytes(string).encode('utf-8')
+        res = False
+        try:
+            self.ser.write(encoded)
+            res = True
+        except serial.SerialTimeoutException:
+            res = False
+
+        return res
+

@@ -7,6 +7,7 @@ class TestModem(unittest.TestCase):
     def setUp(self):
         self.port = "/dev/testport"
         self.m = Modem(self.port)
+        self.m.ser = mock.Mock()
 
     @mock.patch('ec25_modem.ec25.serial.Serial')
     def test_start_serialsuccess(self, s):
@@ -25,3 +26,9 @@ class TestModem(unittest.TestCase):
         s.assert_called_once_with(self.port, 115200, timeout=1)
         self.assertEquals(res, False)
         self.assertEquals(self.m.ser_connected, False)
+
+    def test_serWrite(self):
+        res = self.m.serWrite("AT")
+
+        self.m.ser.write.assert_called_once()
+
