@@ -32,7 +32,7 @@ class TestModem(unittest.TestCase):
 
         self.m.ser.write.assert_called_once()
 
-    def test_serRead(self):
+    def test_serRead_withOK(self):
         fake = [
             "\r\n",
             "+CSQ: 10,10\r\n",
@@ -46,3 +46,19 @@ class TestModem(unittest.TestCase):
         self.assertEquals(self.m.ser.readline.call_count, 4)
         self.assertEquals(res, ["+CSQ: 10,10", "OK"])
 
+    @mock.patch('time.time')
+    def test_serRead_timeout(self, t):
+        fake = [
+            "\r\n",
+            "+CSQ: 10,10\r\n",
+            "\r\n",
+            "\r\n"
+        ]
+        self.m.ser.readline.side_effect = fake
+        t.side_effect = [0, 0.5, 1, 1.5, 3]
+
+
+        res = self.m.serRead()
+
+        self.assertEquals(self.m.ser.readline.call_count, 4)
+        self.assertEquals(res, ["+CSQ: 10,10"])

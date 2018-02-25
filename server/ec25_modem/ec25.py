@@ -1,4 +1,5 @@
 import serial
+import time
 
 class Modem(object):
     def __init__(self, port):
@@ -34,10 +35,13 @@ class Modem(object):
         # Expect \r\n<RESPONSE>\r\n
         response = []
         line = ""
+        timeout = time.time() + 2
         while line != "OK":
             line = self.ser.readline().decode('utf-8').rstrip()
             if line:
                 response.append(line)
+            if timeout < time.time():
+                break
 
         return response
 
