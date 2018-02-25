@@ -38,7 +38,7 @@ class Modem(object):
         return res
 
     def setGPSState(self, state):
-        cmd = "AT+QGPS=1" if state else "AT+QGPS=0"
+        cmd = "AT+QGPS=1" if state else "AT+QGPSEND"
         if not self.serWriteLine(cmd):
             return None
 

@@ -154,7 +154,7 @@ class TestModem(unittest.TestCase):
 
         res = self.m.setGPSState(False)
 
-        w.assert_called_once_with("AT+QGPS=0")
+        w.assert_called_once_with("AT+QGPSEND")
         r.assert_called_once()
         self.assertEquals(res, True)
 
