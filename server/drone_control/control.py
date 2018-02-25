@@ -36,6 +36,7 @@ class Control(object):
         self.modem_connected = self.modem.start()
         if self.modem_connected:
             print "Modem connected."
+            self.modem.turnOnGPS()
         else:
             print "Modem *not* connected."
 

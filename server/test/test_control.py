@@ -30,6 +30,7 @@ class TestControlQueue(unittest.TestCase):
         self.assertEquals(start.call_count, 1)
         loop.assert_called_once()
         self.c.modem.start.assert_called_once()
+        self.c.modem.turnOnGPS.assert_called_once()
         self.assertEquals(self.c.modem_connected, True)
 
     def test_flyManual_allzero(self):
