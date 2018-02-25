@@ -113,6 +113,53 @@ class TestModem(unittest.TestCase):
 
     @mock.patch.object(Modem, 'serWriteLine')
     @mock.patch.object(Modem, 'serRead')
+    def test_getGPSCoordinates_writefail(self, r, w):
+        w.return_value = False
+
+        res = self.m.getGPSCoordinates()
+
+        w.assert_called_once_with("AT+QGPSLOC=2")
+        r.assert_not_called()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getGPSCoordinates_readempty(self, r, w):
+        w.return_value = True
+        r.return_value = []
+
+        res = self.m.getGPSCoordinates()
+
+        w.assert_called_once_with("AT+QGPSLOC=2")
+        r.assert_called_once()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getGPSCoordinates_readfail(self, r, w):
+        w.return_value = True
+        r.return_value = ["+QGPSLOC:BLA,BLA,BLA"]
+
+        res = self.m.getGPSCoordinates()
+
+        w.assert_called_once_with("AT+QGPSLOC=2")
+        r.assert_called_once()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getGPSCoordinates_success(self, r, w):
+        w.return_value = True
+        r.return_value = ["+QGPSLOC: 000102.111,50.000,-0.100,0.5,100.5,3,300.30,0010.0,0010.0,070218,05","OK"]
+
+        res = self.m.getGPSCoordinates()
+
+        w.assert_called_once_with("AT+QGPSLOC=2")
+        r.assert_called_once()
+        self.assertEquals(res, (50.0,-0.1))
+ 
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
     def test_setGPSState_writefail(self, r, w):
         w.return_value = False
 

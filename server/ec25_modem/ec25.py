@@ -68,6 +68,24 @@ class Modem(object):
 
         return res
 
+    def getGPSCoordinates(self):
+        if not self.serWriteLine("AT+QGPSLOC=2"):
+            return None
+
+        response = self.serRead()
+        res = None
+        for line in response:
+            if line.startswith("+QGPSLOC:"):
+                try:
+                    fields = line[9:].split(',')
+                    lat,lon = map(float, fields[1:3])
+                except (IndexError, ValueError):
+                    continue
+                res = (lat,lon)
+                break
+        
+        return res
+
     def getSignalStrength(self):
         if not self.serWriteLine("AT+CSQ"):
             return None
