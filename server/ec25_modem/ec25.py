@@ -16,6 +16,8 @@ class Modem(object):
 
         return self.ser_connected
 
+    def getSignalStrength(self):
+        pass
 
     def serWriteLine(self, string):
         encoded = bytes(string+"\r\n").encode('utf-8')
@@ -27,4 +29,15 @@ class Modem(object):
             res = False
 
         return res
+
+    def serRead(self):
+        # Expect \r\n<RESPONSE>\r\n
+        response = []
+        line = ""
+        while line != "OK":
+            line = self.ser.readline().decode('utf-8').rstrip()
+            if line:
+                response.append(line)
+
+        return response
 

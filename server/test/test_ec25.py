@@ -32,3 +32,17 @@ class TestModem(unittest.TestCase):
 
         self.m.ser.write.assert_called_once()
 
+    def test_serRead(self):
+        fake = [
+            "\r\n",
+            "+CSQ: 10,10\r\n",
+            "\r\n",
+            "OK\r\n"
+        ]
+        self.m.ser.readline.side_effect = fake
+
+        res = self.m.serRead()
+
+        self.assertEquals(self.m.ser.readline.call_count, 4)
+        self.assertEquals(res, ["+CSQ: 10,10", "OK"])
+
