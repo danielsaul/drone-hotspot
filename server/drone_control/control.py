@@ -63,7 +63,8 @@ class Control(object):
         # Get GPS location
         self.getGPS()
 
-        # TODO: Get distance
+        # Get distance
+        self.getDistance()
 
         # TODO: Get 4G Signal strength
         
