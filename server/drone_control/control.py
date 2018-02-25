@@ -2,6 +2,7 @@ import time
 import datetime
 import ps_drone
 import ec25_modem
+import utils
 from controlstate import ControlState
 from dronestate import DroneState
 
@@ -95,6 +96,19 @@ class Control(object):
             self.drone.stop()
         else:
             self.drone.move(m['move']['x'], m['move']['y'], m['altitude'], m['yaw'])
+
+    def getDistance(self):
+        drone_loc = self.drone_state.state['location']
+        app_loc = self.control_state.state['location']
+
+        if not drone_loc['latitude'] or not app_loc['latitude']:
+            return
+
+        distance = {
+            'distance': utils.distanceBetweenPoints(drone_loc, app_loc)
+        }
+        self.drone_state.update_state(distance)
+
 
     def getGPS(self):
         if not self.modem_connected:

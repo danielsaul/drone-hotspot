@@ -67,6 +67,55 @@ class TestControlQueue(unittest.TestCase):
         self.c.drone.stop.assert_not_called()
         self.c.drone.move.assert_called_once_with(0.4, 0.3, 0.2, 0.1)
 
+    @mock.patch('drone_control.control.utils.distanceBetweenPoints')
+    def test_getDistance_noapplocation(self, d):
+        self.c.control_state.state.__getitem__.return_value = {
+            'latitude': None,
+            'longitude': None
+        }
+        self.c.drone_state.state.__getitem__.return_value = {
+            'latitude': 50.0,
+            'longitude': -0.1
+        }
+
+        self.c.getDistance()
+
+        d.assert_not_called()
+        self.c.drone_state.update_state.assert_not_called()
+
+    @mock.patch('drone_control.control.utils.distanceBetweenPoints')
+    def test_getDistance_nodronelocation(self, d):
+        self.c.control_state.state.__getitem__.return_value = {
+            'latitude': 50.0,
+            'longitude': -0.1
+        }
+        self.c.drone_state.state.__getitem__.return_value = {
+            'latitude': None,
+            'longitude': None
+        }
+
+        self.c.getDistance()
+
+        d.assert_not_called()
+        self.c.drone_state.update_state.assert_not_called()
+
+    @mock.patch('drone_control.control.utils.distanceBetweenPoints')
+    def test_getDistance_success(self, d):
+        self.c.control_state.state.__getitem__.return_value = {
+            'latitude': 50.0,
+            'longitude': -0.1
+        }
+        self.c.drone_state.state.__getitem__.return_value = {
+            'latitude': 25.0,
+            'longitude': 5.0
+        }
+        d.return_value = 50.0
+
+        self.c.getDistance()
+
+        d.assert_called_once()
+        self.c.drone_state.update_state.assert_called_once_with({'distance': 50.0})
+
     def test_getGPS_modemnotconnected(self):
         self.c.modem_connected = False
 
