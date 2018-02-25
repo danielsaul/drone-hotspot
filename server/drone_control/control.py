@@ -91,6 +91,39 @@ class Control(object):
                 # TODO: Autonomous
                 pass
 
+    def flyToPoint(self):
+        ftp = self.control_state.state['flytopoint']
+        drone_loc = self.drone_state.state['location']
+        if not ftp['location'] or not ftp['altitude'] or not drone_loc['latitude']:
+            self.drone.stop()
+            return
+
+        distance = utils.distanceBetweenPoints(drone_loc, ftp['location'])
+        altitude = ftp['altitude'] - (self.drone.NavData["demo"][3]/3)
+        if distance <= 3 and altitude <= 1:
+            self.drone.stop()
+            return
+
+        # Turn to correct bearing
+        current_bearing = self.drone.NavData["demo"][2][2]
+        current_bearing = (current_bearing + 360) % 360
+        target_bearing = utils.bearingBetweenPoints(drone_loc, ftp['location'])
+        angle = target_bearing - current_bearing
+        if angle > 180:
+            angle -= 360
+        elif angle < -180:
+            angle += 180
+        drone.turnAngle(angle, 1, 0.1)
+
+        # Move forward and up at proportional speed
+        forward_speed = min(max(distance/30.0, 1.0), 0.1)
+        up_speed = min(max(altitude/10.0, 1.0), -1.0)
+        drone.move(0.0, forward_speed, up_speed, 0.0)
+
+
+
+
+
     def flyManual(self):
         m = self.control_state.state['manual']
         

@@ -33,6 +33,43 @@ class TestControlQueue(unittest.TestCase):
         self.c.modem.turnOnGPS.assert_called_once()
         self.assertEquals(self.c.modem_connected, True)
 
+    def test_flyToPoint_nosetlocation(self):
+        self.c.control_state.state = {
+            'flytopoint': {
+                'altitude': None,
+                'location': None
+            }
+        }
+
+        self.c.flyToPoint()
+
+        self.c.drone.stop.assert_called_once()
+        self.c.drone.move.assert_not_called()
+        self.c.drone.turnAngle.assert_not_called()
+
+    def test_flyToPoint_nogpslocation(self):
+        self.c.control_state.state = {
+            'flytopoint': {
+                'altitude': 5,
+                'location': {
+                    'latitude': 51.0,
+                    'longitude': -0.1
+                }
+            }
+        }
+        self.c.drone_state.state = {
+            'location': {
+                'latitude': None,
+                'longitude': None
+            }
+        }
+
+        self.c.flyToPoint()
+
+        self.c.drone.stop.assert_called_once()
+        self.c.drone.move.assert_not_called()
+        self.c.drone.turnAngle.assert_not_called()
+
     def test_flyManual_allzero(self):
         self.c.control_state.state = {
             'manual': {
