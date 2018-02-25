@@ -66,7 +66,8 @@ class Control(object):
         # Get distance
         self.getDistance()
 
-        # TODO: Get 4G Signal strength
+        # Get 4G Signal strength
+        self.getSignal()
         
         # Send updated drone state to socket/app
         self.drone_state_dict.update(self.drone_state.state)
@@ -110,6 +111,16 @@ class Control(object):
         }
         self.drone_state.update_state(distance)
 
+    def getSignal(self):
+        if not self.modem_connected:
+            return
+
+        res = self.modem.getSignalStrength()
+        if res:
+            signal = {
+                'signal': res
+            }
+            self.drone_state.update_state(signal)
 
     def getGPS(self):
         if not self.modem_connected:

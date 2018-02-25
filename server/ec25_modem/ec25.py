@@ -104,7 +104,7 @@ class Modem(object):
         return res
 
     def mapRSSItodBm(self, rssi):
-        dBm = None
+        dBm = "None"
         if rssi >= 0 and rssi <= 31:
             dBm = rssi*2 - 113
         if rssi >= 100 and rssi <= 191:

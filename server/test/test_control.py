@@ -116,6 +116,35 @@ class TestControlQueue(unittest.TestCase):
         d.assert_called_once()
         self.c.drone_state.update_state.assert_called_once_with({'distance': 50.0})
 
+    def test_getSignal_modemnotconnected(self):
+        self.c.modem_connected = False
+
+        self.c.getSignal()
+
+        self.c.modem.getSignalStrength.assert_not_called()
+        self.c.drone_state.update_state.assert_not_called()
+
+    def test_getSignal_none(self):
+        self.c.modem_connected = True
+        self.c.modem.getSignalStrength.return_value = None
+
+        self.c.getSignal()
+
+        self.c.modem.getSignalStrength.assert_called_once()
+        self.c.drone_state.update_state.assert_not_called()
+
+    def test_getSignal_success(self):
+        self.c.modem_connected = True
+        self.c.modem.getSignalStrength.return_value = -113.0
+        newstate = {
+            'signal': -113.0
+        }
+
+        self.c.getSignal()
+
+        self.c.modem.getSignalStrength.assert_called_once()
+        self.c.drone_state.update_state.assert_called_once_with(newstate)
+
     def test_getGPS_modemnotconnected(self):
         self.c.modem_connected = False
 
