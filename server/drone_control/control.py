@@ -59,8 +59,10 @@ class Control(object):
         # Get latest drone data
         self.getDroneData()
 
-        # TODO: Get GPS location
-        # Update state with GPS and distance
+        # Get GPS location
+        self.getGPS()
+
+        # TODO: Get distance
 
         # TODO: Get 4G Signal strength
         
@@ -93,6 +95,20 @@ class Control(object):
             self.drone.stop()
         else:
             self.drone.move(m['move']['x'], m['move']['y'], m['altitude'], m['yaw'])
+
+    def getGPS(self):
+        if not self.modem_connected:
+            return
+        
+        res = self.modem.getGPSCoordinates()
+        if res:
+            coords = {
+                'location': {
+                    'latitude': res[0],
+                    'longitude': res[1]
+                }
+            }
+            self.drone_state.update_state(coords)
 
     def getDroneData(self):
         if self.prev_data_count >= self.drone.NavDataCount:

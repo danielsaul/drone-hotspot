@@ -67,6 +67,38 @@ class TestControlQueue(unittest.TestCase):
         self.c.drone.stop.assert_not_called()
         self.c.drone.move.assert_called_once_with(0.4, 0.3, 0.2, 0.1)
 
+    def test_getGPS_modemnotconnected(self):
+        self.c.modem_connected = False
+
+        self.c.getGPS()
+
+        self.c.modem.getGPSCoordinates.assert_not_called()
+        self.c.drone_state.update_state.assert_not_called()
+
+    def test_getGPS_none(self):
+        self.c.modem_connected = True
+        self.c.modem.getGPSCoordinates.return_value = None
+
+        self.c.getGPS()
+
+        self.c.modem.getGPSCoordinates.assert_called_once()
+        self.c.drone_state.update_state.assert_not_called()
+
+    def test_getGPS_success(self):
+        self.c.modem_connected = True
+        self.c.modem.getGPSCoordinates.return_value = (50.0,-1.0)
+        newstate = {
+            'location': {
+                'latitude': 50.0,
+                'longitude': -1.0
+            }
+        }
+
+        self.c.getGPS()
+
+        self.c.modem.getGPSCoordinates.assert_called_once()
+        self.c.drone_state.update_state.assert_called_once_with(newstate)
+
     def test_getDroneData_old(self):
         self.c.prev_data_count = 10
         self.c.drone.NavDataCount = 10
