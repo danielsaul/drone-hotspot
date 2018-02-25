@@ -27,6 +27,137 @@ class TestModem(unittest.TestCase):
         self.assertEquals(res, False)
         self.assertEquals(self.m.ser_connected, False)
 
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOffGPS_gpsalreadyoff(self, s, g):
+        g.return_value = 0
+
+        res = self.m.turnOffGPS()
+        
+        s.assert_not_called()
+        self.assertEquals(res, True)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOffGPS_gpson(self, s, g):
+        g.return_value = 1
+        s.return_value = True
+
+        res = self.m.turnOffGPS()
+        
+        s.assert_called_once_with(False)
+        self.assertEquals(res, True)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOffGPS_gpsonsetfail(self, s, g):
+        g.return_value = 1
+        s.return_value = False
+
+        res = self.m.turnOffGPS()
+        
+        s.assert_called_once_with(False)
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOffGPS_getfail(self, s, g):
+        g.return_value = None
+
+        res = self.m.turnOffGPS()
+        
+        s.assert_not_called()
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOnGPS_gpsalreadyon(self, s, g):
+        g.return_value = 1
+
+        res = self.m.turnOnGPS()
+        
+        s.assert_not_called()
+        self.assertEquals(res, True)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOnGPS_gpsoff(self, s, g):
+        g.return_value = 0
+        s.return_value = True
+
+        res = self.m.turnOnGPS()
+        
+        s.assert_called_once_with(True)
+        self.assertEquals(res, True)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOnGPS_gpsoffsetfail(self, s, g):
+        g.return_value = 0
+        s.return_value = False
+
+        res = self.m.turnOnGPS()
+        
+        s.assert_called_once_with(True)
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'getGPSState')
+    @mock.patch.object(Modem, 'setGPSState')
+    def test_turnOnGPS_getfail(self, s, g):
+        g.return_value = None
+
+        res = self.m.turnOnGPS()
+        
+        s.assert_not_called()
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_setGPSState_writefail(self, r, w):
+        w.return_value = False
+
+        res = self.m.setGPSState(True)
+
+        w.assert_called_once_with("AT+QGPS=1")
+        r.assert_not_called()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_setGPSState_readempty(self, r, w):
+        w.return_value = True
+        r.return_value = []
+
+        res = self.m.setGPSState(True)
+
+        w.assert_called_once_with("AT+QGPS=1")
+        r.assert_called_once()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_setGPSState_success1(self, r, w):
+        w.return_value = True
+        r.return_value = ["OK"]
+
+        res = self.m.setGPSState(True)
+
+        w.assert_called_once_with("AT+QGPS=1")
+        r.assert_called_once()
+        self.assertEquals(res, True)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_setGPSState_success0(self, r, w):
+        w.return_value = True
+        r.return_value = ["OK"]
+
+        res = self.m.setGPSState(False)
+
+        w.assert_called_once_with("AT+QGPS=0")
+        r.assert_called_once()
+        self.assertEquals(res, True)
+
     @mock.patch.object(Modem, 'serWriteLine')
     @mock.patch.object(Modem, 'serRead')
     def test_getGPSState_writefail(self, r, w):

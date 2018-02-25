@@ -17,6 +17,40 @@ class Modem(object):
 
         return self.ser_connected
 
+    def turnOnGPS(self):
+        res = False
+        state = self.getGPSState()
+        if state == 0: # GPS is off
+            if self.setGPSState(True):
+                res = True
+        elif state == 1: # GPS is already on
+            res = True
+        return res
+
+    def turnOffGPS(self):
+        res = False
+        state = self.getGPSState()
+        if state == 1: # GPS is on
+            if self.setGPSState(False):
+                res = True
+        elif state == 0: # GPS is already off
+            res = True
+        return res
+
+    def setGPSState(self, state):
+        cmd = "AT+QGPS=1" if state else "AT+QGPS=0"
+        if not self.serWriteLine(cmd):
+            return None
+
+        response = self.serRead()
+        res = None
+        for line in response:
+            if line == "OK":
+                res = True
+                break
+
+        return res
+
     def getGPSState(self):
         if not self.serWriteLine("AT+QGPS?"):
             return None
@@ -33,7 +67,6 @@ class Modem(object):
                 break
 
         return res
-
 
     def getSignalStrength(self):
         if not self.serWriteLine("AT+CSQ"):
