@@ -20,6 +20,7 @@ class Control(object):
         self.drone_connected = False
         self.drone_calibrated = False
         self.returning = False
+        self.modem_connected = False
 
     def start(self):
         # Connect to drone
@@ -30,6 +31,13 @@ class Control(object):
             time.sleep(3)
         
         print "Drone connected."
+
+        # Connect to modem
+        self.modem_connected = self.modem.start()
+        if self.modem_connected:
+            print "Modem connected."
+        else:
+            print "Modem *not* connected."
 
         # Enter control loop
         self.loop()

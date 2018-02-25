@@ -13,6 +13,7 @@ class TestControlQueue(unittest.TestCase):
         self.c.control_state = mock.MagicMock()
         self.c.drone_state = mock.MagicMock()
         self.c.drone = mock.MagicMock()
+        self.c.modem = mock.MagicMock()
 
     @mock.patch.object(Control, 'startDrone')
     @mock.patch.object(Control, 'loop')
@@ -22,11 +23,14 @@ class TestControlQueue(unittest.TestCase):
         self.c.drone_connected = False
         def setTrue(): self.c.drone_connected = True
         start.side_effect = setTrue
+        self.c.modem.start.return_value = True
 
         self.c.start()
 
         self.assertEquals(start.call_count, 1)
         loop.assert_called_once()
+        self.c.modem.start.assert_called_once()
+        self.assertEquals(self.c.modem_connected, True)
 
     def test_flyManual_allzero(self):
         self.c.control_state.state = {
