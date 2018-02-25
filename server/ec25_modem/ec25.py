@@ -18,7 +18,30 @@ class Modem(object):
         return self.ser_connected
 
     def getSignalStrength(self):
-        pass
+        if not self.serWriteLine("AT+CSQ"):
+            return False
+
+        response = self.serRead()
+        res = False
+        for line in response:
+            if line.startswith("+CSQ:"):
+                try:
+                    rssi,ber = map(int, line[6:].split(','))
+                except (IndexError, ValueError):
+                    continue
+                res = self.mapRSSItodBm(rssi)
+                break
+
+        return res
+
+    def mapRSSItodBm(self, rssi):
+        dBm = None
+        if rssi >= 0 and rssi <= 31:
+            dBm = rssi*2 - 113
+        if rssi >= 100 and rssi <= 191:
+            dBm = rssi - 216
+
+        return dBm
 
     def serWriteLine(self, string):
         encoded = bytes(string+"\r\n").encode('utf-8')

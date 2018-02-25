@@ -27,6 +27,71 @@ class TestModem(unittest.TestCase):
         self.assertEquals(res, False)
         self.assertEquals(self.m.ser_connected, False)
 
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getSignalStrength_writefail(self, r, w):
+        w.return_value = False
+
+        res = self.m.getSignalStrength()
+
+        w.assert_called_once_with("AT+CSQ")
+        r.assert_not_called()
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getSignalStrength_readempty(self, r, w):
+        w.return_value = True
+        r.return_value = []
+
+        res = self.m.getSignalStrength()
+
+        w.assert_called_once_with("AT+CSQ")
+        r.assert_called_once()
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getSignalStrength_readfail(self, r, w):
+        w.return_value = True
+        r.return_value = ["+CSQ:BLA"]
+
+        res = self.m.getSignalStrength()
+
+        w.assert_called_once_with("AT+CSQ")
+        r.assert_called_once()
+        self.assertEquals(res, False)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    @mock.patch.object(Modem, 'mapRSSItodBm')
+    def test_getSignalStrength_success(self, rssi, r, w):
+        w.return_value = True
+        r.return_value = ["+CSQ: 30,99"]
+        rssi.return_value = -53
+
+        res = self.m.getSignalStrength()
+
+        w.assert_called_once_with("AT+CSQ")
+        r.assert_called_once()
+        rssi.assert_called_once_with(30)
+        self.assertEquals(res, -53)
+
+    def test_mapRSSItodBm(self):
+        self.assertEquals(self.m.mapRSSItodBm(0), -113)
+        self.assertEquals(self.m.mapRSSItodBm(1), -111)
+        self.assertEquals(self.m.mapRSSItodBm(2), -109)
+        self.assertEquals(self.m.mapRSSItodBm(30), -53)
+        self.assertEquals(self.m.mapRSSItodBm(31), -51)
+        self.assertEquals(self.m.mapRSSItodBm(99), None)
+
+        self.assertEquals(self.m.mapRSSItodBm(100), -116)
+        self.assertEquals(self.m.mapRSSItodBm(101), -115)
+        self.assertEquals(self.m.mapRSSItodBm(102), -114)
+        self.assertEquals(self.m.mapRSSItodBm(190), -26)
+        self.assertEquals(self.m.mapRSSItodBm(191), -25)
+        self.assertEquals(self.m.mapRSSItodBm(199), None)
+
     def test_serWriteLine(self):
         res = self.m.serWriteLine("AT")
 
