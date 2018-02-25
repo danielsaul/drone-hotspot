@@ -29,6 +29,53 @@ class TestModem(unittest.TestCase):
 
     @mock.patch.object(Modem, 'serWriteLine')
     @mock.patch.object(Modem, 'serRead')
+    def test_getGPSState_writefail(self, r, w):
+        w.return_value = False
+
+        res = self.m.getGPSState()
+
+        w.assert_called_once_with("AT+QGPS?")
+        r.assert_not_called()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getGPSState_readempty(self, r, w):
+        w.return_value = True
+        r.return_value = []
+
+        res = self.m.getGPSState()
+
+        w.assert_called_once_with("AT+QGPS?")
+        r.assert_called_once()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getGPSState_readfail(self, r, w):
+        w.return_value = True
+        r.return_value = ["+QGPS:BLA"]
+
+        res = self.m.getGPSState()
+
+        w.assert_called_once_with("AT+QGPS?")
+        r.assert_called_once()
+        self.assertEquals(res, None)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
+    def test_getGPSState_success(self, r, w):
+        w.return_value = True
+        r.return_value = ["+QGPS: 1"]
+
+        res = self.m.getGPSState()
+
+        w.assert_called_once_with("AT+QGPS?")
+        r.assert_called_once()
+        self.assertEquals(res, 1)
+
+    @mock.patch.object(Modem, 'serWriteLine')
+    @mock.patch.object(Modem, 'serRead')
     def test_getSignalStrength_writefail(self, r, w):
         w.return_value = False
 
@@ -36,7 +83,7 @@ class TestModem(unittest.TestCase):
 
         w.assert_called_once_with("AT+CSQ")
         r.assert_not_called()
-        self.assertEquals(res, False)
+        self.assertEquals(res, None)
 
     @mock.patch.object(Modem, 'serWriteLine')
     @mock.patch.object(Modem, 'serRead')
@@ -48,7 +95,7 @@ class TestModem(unittest.TestCase):
 
         w.assert_called_once_with("AT+CSQ")
         r.assert_called_once()
-        self.assertEquals(res, False)
+        self.assertEquals(res, None)
 
     @mock.patch.object(Modem, 'serWriteLine')
     @mock.patch.object(Modem, 'serRead')
@@ -60,7 +107,7 @@ class TestModem(unittest.TestCase):
 
         w.assert_called_once_with("AT+CSQ")
         r.assert_called_once()
-        self.assertEquals(res, False)
+        self.assertEquals(res, None)
 
     @mock.patch.object(Modem, 'serWriteLine')
     @mock.patch.object(Modem, 'serRead')

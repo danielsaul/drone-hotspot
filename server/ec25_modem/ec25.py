@@ -17,12 +17,30 @@ class Modem(object):
 
         return self.ser_connected
 
-    def getSignalStrength(self):
-        if not self.serWriteLine("AT+CSQ"):
-            return False
+    def getGPSState(self):
+        if not self.serWriteLine("AT+QGPS?"):
+            return None
 
         response = self.serRead()
-        res = False
+        res = None
+        for line in response:
+            if line.startswith("+QGPS:"):
+                try:
+                    state = int(line[7:])
+                except (IndexError, ValueError):
+                    continue
+                res = state
+                break
+
+        return res
+
+
+    def getSignalStrength(self):
+        if not self.serWriteLine("AT+CSQ"):
+            return None
+
+        response = self.serRead()
+        res = None
         for line in response:
             if line.startswith("+CSQ:"):
                 try:
