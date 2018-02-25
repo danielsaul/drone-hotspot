@@ -308,14 +308,14 @@ class TestModem(unittest.TestCase):
         self.assertEquals(self.m.mapRSSItodBm(2), -109)
         self.assertEquals(self.m.mapRSSItodBm(30), -53)
         self.assertEquals(self.m.mapRSSItodBm(31), -51)
-        self.assertEquals(self.m.mapRSSItodBm(99), None)
+        self.assertEquals(self.m.mapRSSItodBm(99), 'None')
 
         self.assertEquals(self.m.mapRSSItodBm(100), -116)
         self.assertEquals(self.m.mapRSSItodBm(101), -115)
         self.assertEquals(self.m.mapRSSItodBm(102), -114)
         self.assertEquals(self.m.mapRSSItodBm(190), -26)
         self.assertEquals(self.m.mapRSSItodBm(191), -25)
-        self.assertEquals(self.m.mapRSSItodBm(199), None)
+        self.assertEquals(self.m.mapRSSItodBm(199), 'None')
 
     def test_serWriteLine(self):
         res = self.m.serWriteLine("AT")
