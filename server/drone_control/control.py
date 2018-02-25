@@ -1,6 +1,7 @@
 import time
 import datetime
 import ps_drone
+import ec25_modem
 from controlstate import ControlState
 from dronestate import DroneState
 
@@ -8,6 +9,7 @@ class Control(object):
     def __init__(self, drone_state_dict, pipe):
         self.pipe = pipe
         self.drone = ps_drone.Drone()
+        self.modem = ec25_modem.Modem("/dev/ttyUSB3") 
 
         self.control_state = ControlState()
         self.drone_state = DroneState()
