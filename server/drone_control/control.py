@@ -23,6 +23,8 @@ class Control(object):
         self.returning = False
         self.modem_connected = False
 
+        self.loop = True
+
     def start(self):
         # Connect to drone
         print "Waiting for drone"
@@ -45,7 +47,7 @@ class Control(object):
         self.loop()
 
     def loop(self):
-        while True:
+        while self.loop:
             self.iteration()
 
     def iteration(self):
