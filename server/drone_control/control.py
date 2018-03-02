@@ -84,7 +84,7 @@ class Control(object):
                 self.flyManual()
 
             elif self.control_state.state['mode'] == 'flytopoint':
-                # TODO: Fly to point
+                self.flyToPoint()
                 pass
 
             elif self.control_state.state['mode'] == 'autonomous':
