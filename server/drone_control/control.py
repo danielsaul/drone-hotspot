@@ -55,12 +55,12 @@ class Control(object):
         # Consume control messages from socket/app
         self.consumeControlQueue()
 
+        # Get latest drone data
+        self.getDroneData()
+
         # If app is not connected
         if not self.connectionCheck():
             return
-
-        # Get latest drone data
-        self.getDroneData()
 
         # Get GPS location
         self.getGPS()
