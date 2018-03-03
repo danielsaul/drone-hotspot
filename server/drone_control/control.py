@@ -77,7 +77,7 @@ class Control(object):
         # Drone is flying, instruct it
         if self.drone_state.state['status'] == 'flying':
             
-            if returning:
+            if self.returning:
                 # TODO: Return to home functionality
                 pass
 
