@@ -8,18 +8,18 @@ class TestControlState(unittest.TestCase):
 
     def test_initial_state(self):
         state = {
-            'mode': None,
+            'mode': 'manual',
             'location': {
                 'latitude': None,
                 'longitude': None
             },
             'manual': {
                 'move': {
-                    'x': None,
-                    'y': None
+                    'x': 0.0,
+                    'y': 0.0
                 },
-                'altitude': None,
-                'yaw': None
+                'altitude': 0.0,
+                'yaw': 0.0
             },
             'flytopoint': {
                 'altitude': None,
@@ -100,13 +100,9 @@ class TestControlState(unittest.TestCase):
 
     def test_set_mode(self):
         prev = copy.deepcopy(self.func.state)
-        self.func.set_mode({'mode': 'manual'})
-        self.assertNotEqual(prev, self.func.state)
-        self.assertEqual(self.func.state['mode'], 'manual')
+        self.func.set_mode({'mode': 'flytopoint'})
+        self.assertEqual(self.func.state['mode'], 'flytopoint')
         self.assertEqual(self.func.state['manual'], prev['manual'])
-
-    def test_get_whennotready(self):
-        self.assertRaises(ValueError, self.func.get_state)
 
     def test_get_whenready(self):
         self.func.state['mode'] = 'manual'
