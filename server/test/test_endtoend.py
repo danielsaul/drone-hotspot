@@ -63,21 +63,25 @@ class TestEndToEnd(unittest.TestCase):
 
     def test_appdisconnects(self):
         self.c.start()
+        self.c.iteration()
         self.sio.disconnect()
         self.c.iteration()
         self.assertEqual(self.c.app_connected, False)
     
     def test_takesoff(self):
         self.c.start()
-        self.sio.emit('action', 'takeoff')
         self.c.iteration()
+        self.sio.emit('action', 'takeoff')
+        self.sio.wait(seconds=1)
         self.c.iteration()
         self.assertEqual(self.c.drone_calibrated, True)
         self.assertEqual(self.c.drone_state.state['status'], 'flying')
 
     def test_appdisconnects_whileflying(self):
         self.c.start()
+        self.c.iteration()
         self.sio.emit('action', 'takeoff')
+        self.sio.wait(seconds=1)
         self.c.iteration()
         self.sio.disconnect()
         self.c.iteration()
@@ -96,14 +100,25 @@ class TestEndToEnd(unittest.TestCase):
 
     def test_lands(self):
         self.c.start()
-        self.sio.emit('action', 'takeoff')
         self.c.iteration()
+        self.sio.emit('action', 'takeoff')
+        self.sio.wait(seconds=1)
         self.c.iteration()
         self.sio.emit('action', 'land')
-        self.sio.wait(seconds=0.5)
+        self.sio.wait(seconds=1)
         self.c.iteration()
         self.assertEqual(self.c.drone_state.state['status'], 'landing')
- 
+
+    def test_moves(self):
+        self.c.start()
+        self.c.iteration()
+        self.sio.emit('action', 'takeoff')
+        self.sio.wait(seconds=1)
+        self.c.iteration()
+        self.sio.emit('update_manual', {'move': {'x': 0.5, 'y': 0.2}})
+        self.sio.wait(seconds=1)
+        self.c.iteration()
+        self.c.drone.move.assert_called_with(0.5, 0.2, 0.0, 0.0)
 
     def tearDown(self):
         self.socketproc.terminate()
