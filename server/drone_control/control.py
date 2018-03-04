@@ -168,10 +168,11 @@ class Control(object):
             self.drone_state.update_state(coords)
 
     def getDroneData(self):
-        if self.prev_data_count >= self.drone.NavDataCount:
+        n = self.drone.NavDataCount
+        if self.prev_data_count >= n:
             return
         
-        self.prev_data_count = self.drone.NavDataCount
+        self.prev_data_count = n
         new = {}
 
         if self.drone.NavData['demo'][0][2]:    # Landed/Waiting
