@@ -128,6 +128,40 @@ class TestControlQueue(unittest.TestCase):
         self.assertEqual(args[2], 0.4)
         self.assertEqual(args[3], 0.0)
 
+    def test_flyToPoint_turntobearingandmoveminus(self):
+        self.c.control_state.state = {
+            'flytopoint': {
+                'altitude': 5,
+                'location': {
+                    'latitude': 52.564,
+                    'longitude': -1.351
+                }
+            }
+        }
+        self.c.drone_state.state = {
+            'altitude': 1,
+            'location': {
+                'latitude': 52.1,
+                'longitude': -0.01,
+            }
+        }
+        self.c.drone.NavData = {
+            "demo": [0, 0, [0, 0, 340]] # Current bearing = 340degs
+        }
+        
+        expected_turn = -40.0
+
+        self.c.flyToPoint()
+
+        args, kwargs = self.c.drone.turnAngle.call_args
+        self.assertAlmostEqual(args[0], expected_turn, 0)
+        
+        args, kwargs = self.c.drone.move.call_args
+        self.assertEqual(args[0], 0.0)
+        self.assertEqual(args[1], 1.0)
+        self.assertEqual(args[2], 0.4)
+        self.assertEqual(args[3], 0.0)    
+        
     def test_flyManual_allzero(self):
         self.c.control_state.state = {
             'manual': {
