@@ -120,6 +120,26 @@ class TestEndToEnd(unittest.TestCase):
         self.c.iteration()
         self.c.drone.move.assert_called_with(0.5, 0.2, 0.0, 0.0)
 
+    def test_fliestopoint(self):
+        self.c.start()
+        self.c.iteration()
+        self.sio.emit('set_mode', {'mode': 'flytopoint'})
+        self.sio.emit('action', 'takeoff')
+        self.sio.wait(seconds=1)
+        self.c.iteration()
+        self.sio.emit('update_flytopoint', {
+            'altitude': 10,
+            'location': { 'latitude': 52.0, 'longitude': 1.0}
+            })
+        self.sio.wait(seconds=1)
+        self.c.iteration()
+        self.c.drone.turnAngle.assert_called_once()
+        self.c.drone.move.assert_called_once()
+        self.c.modem.getGPSCoordinates.return_value = (52.0, 1.0)
+        self.c.drone.NavData['demo'][3] = 10
+        self.c.iteration()
+        self.c.drone.stop.assert_called()
+
     def tearDown(self):
         self.socketproc.terminate()
         self.socketproc.join()
