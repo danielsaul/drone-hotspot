@@ -91,18 +91,17 @@ class Main extends Component{
     );
   }
 
-  joystickHandler = (x, len) => (e) => {
-    let str = x;
+  joystickHandler = (str, len) => (e) => {
     let x = e.dx/len;
     let y = e.dy/len;
 
-    if (Math.abs(this.prevJoystick.x - x) >= 0.2 || Math.abs(this.prevJoystick.y - y) >= 0.2) {
+    if (Math.abs(this.prevJoystick.x - x) >= 0.1 || Math.abs(this.prevJoystick.y - y) >= 0.1) {
       switch (str) {
         case "move":
-         this.props.manualChange({move: {x, y}});
+          this.props.manualChange({move: {x, -y}});
           break;
         case "altitude":
-          let altitude = y;
+          let altitude = -y;
           this.props.manualChange({altitude});
           break;
         case "yaw":
@@ -110,9 +109,9 @@ class Main extends Component{
           this.props.manualChange({yaw});
           break;
       }
+      
+      this.prevJoystick = {x, y}
     }
-
-    this.prevJoystick = {x, y}
 
   }
 
