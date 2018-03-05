@@ -1,7 +1,7 @@
 from multiprocessing import Process, Pipe, Manager
 
 from control import Control
-import socket
+import appsocket
 
 def drone_control(drone_state, pipe):
     c = Control(drone_state, pipe)
@@ -23,6 +23,6 @@ def main():
 
     # Start comms with phone app
     print "Starting socket connection..."
-    socket.start(drone_state, socket_pipe)
+    appsocket.start(drone_state, socket_pipe)
 
 

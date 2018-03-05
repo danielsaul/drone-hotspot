@@ -1,6 +1,6 @@
 import unittest
 import mock
-from drone_control.socket import *
+from drone_control.appsocket import *
 
 from multiprocessing import Manager, Pipe
 
