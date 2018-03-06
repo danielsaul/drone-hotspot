@@ -221,11 +221,12 @@ class Control(object):
             time.sleep(0.1)
             if i >= 20:
                 # Been more than 2 seconds, give up
+                self.drone.shutdown()
                 return
             i+=1
 
-        # Navdata 200 times per sec
-        self.drone.useDemoMode(False)
+        # Navdata x times per sec
+        self.drone.useDemoMode(True)
         self.drone.getNDpackage(["demo"])
 
         # Set to outdoor mode
