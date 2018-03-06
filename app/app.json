@@ -1,5 +1,13 @@
 {
   "expo": {
-    "sdkVersion": "23.0.0"
+    "name": "Drone Hotspot",
+    "icon": "./app-icon.png",
+    "version": "1.0.0",
+    "slug": "drone-hotspot",
+    "sdkVersion": "23.0.0",
+    "ios": {
+      "bundleIdentifier": "com.danielsaul.dronehotspot"
+    },
+    "orientation": "portrait"
   }
 }
