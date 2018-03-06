@@ -92,8 +92,8 @@ class Main extends Component{
   }
 
   joystickHandler = (str, len) => (e) => {
-    let x = (e.dx/len).toFixed(2);
-    let y = (-e.dy/len).toFixed(2);
+    let x = Math.round( (e.dx/len) * 1e2 ) / 1e2;
+    let y = Math.round( (-e.dy/len) * 1e2 ) / 1e2;
     
     if (str == "release") {
       this.props.manualChange({move: {x: 0.0, y: 0.0}, altitude: 0.0, yaw: 0.0});
