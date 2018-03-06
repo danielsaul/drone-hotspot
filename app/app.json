@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Drone Hotspot",
-    "icon": "./app-icon.png",
+    "icon": "./icon.png",
     "version": "1.0.0",
     "slug": "drone-hotspot",
     "sdkVersion": "23.0.0",
