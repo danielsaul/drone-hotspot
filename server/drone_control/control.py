@@ -246,10 +246,10 @@ class Control(object):
         while self.drone.NavData["demo"][0][2]:
             time.sleep(0.1)
 
-        if not self.drone_calibrated:
+        #if not self.drone_calibrated:
             # Calibrate magnetometer
-            self.drone.mtrim()
-            self.drone_calibrated = True
+        #    self.drone.mtrim()
+        #    self.drone_calibrated = True
 
     def consumeControlQueue(self):
         action = None
