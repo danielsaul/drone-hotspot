@@ -49,6 +49,7 @@ class Control(object):
     def loop(self):
         while self.running:
             self.iteration()
+            time.sleep(0.01)
 
     def iteration(self):
 
