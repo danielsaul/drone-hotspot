@@ -128,7 +128,6 @@ class Control(object):
         
         if m['move']['x'] == 0.0 and m['move']['y'] == 0.0 and m['altitude'] == 0.0 and m['yaw'] == 0.0:
             self.drone.stop()
-            print "Not moving"
         else:
             self.drone.move(m['move']['x']/2, m['move']['y']/2, m['altitude']/2, m['yaw']/2)
 
@@ -294,5 +293,6 @@ class Control(object):
         if action == 'return' and self.drone_state.state['status'] == 'flying':
             self.returning = True
         if action == 'abort' and self.drone_state.state['status'] == 'flying':
-            self.drone.reset()
+            drone.thrust(0,0,0,0)
+            self.running = False
 
