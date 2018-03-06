@@ -47,6 +47,9 @@ def update_all(sid, data):
     #print(data)
     pass
 
+@sio.on('update_manual')
+def manual(sid, data):
+    print(data)
 
 @sio.on('action')
 def action(sid, data):
