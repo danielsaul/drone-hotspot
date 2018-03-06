@@ -175,16 +175,21 @@ class Control(object):
         self.prev_data_count = n
         new = {}
 
-        if self.drone.NavData['demo'][0][2]:    # Landed/Waiting
-            new['status'] = "waiting"
-        elif self.drone.NavData['demo'][0][3]:  # Flying
+        #if self.drone.NavData['demo'][0][2]:    # Landed/Waiting
+        #    new['status'] = "waiting"
+        #elif self.drone.NavData['demo'][0][3]:  # Flying
+        #    new['status'] = "flying"
+        #elif self.drone.NavData['demo'][0][4]:  # Landing
+        #    new['status'] = "landing"
+        
+        if self.drone.State[0]:
             new['status'] = "flying"
-        elif self.drone.NavData['demo'][0][4]:  # Landing
-            new['status'] = "landing"
+        else:
+            new['status'] = "waiting"
 
-        new['battery'] = self.drone.NavData['demo'][1]
-        new['altitude'] = self.drone.NavData['demo'][3] / 100
-        new['speed'] = self.drone.NavData['demo'][4][0] / 1000
+        new['battery'] = int(self.drone.NavData['demo'][1])
+        new['altitude'] = round(self.drone.NavData['demo'][3] / 100, 2)
+        new['speed'] = round(self.drone.NavData['demo'][4][0] / 1000, 2)
 
         self.drone_state.update_state(new)
 
