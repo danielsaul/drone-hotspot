@@ -129,7 +129,7 @@ class Control(object):
         if m['move']['x'] == 0.0 and m['move']['y'] == 0.0 and m['altitude'] == 0.0 and m['yaw'] == 0.0:
             self.drone.stop()
         else:
-            self.drone.move(m['move']['x']/2, m['move']['y']/2, m['altitude']/2, m['yaw']/2)
+            self.drone.move(m['move']['x']/3, m['move']['y']/3, m['altitude']/3, m['yaw']/3)
 
     def getDistance(self):
         drone_loc = self.drone_state.state['location']
