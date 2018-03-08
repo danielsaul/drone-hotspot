@@ -111,7 +111,7 @@ if __name__ == '__main__':
         latList.append(initialLat)
 
         # Calculate 3 additional coordinates 10m away
-        flightRadius = 10
+        flightRadius = 5
         destBearing = 360/3
 
         for i in range(3):

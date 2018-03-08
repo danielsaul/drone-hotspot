@@ -136,7 +136,7 @@ if __name__ == '__main__':
         drone.takeoff()
         while drone.NavData["demo"][0][2]:  time.sleep(0.1)
 
-        flightTime = 10
+        flightTime = 100
         refTime = time.time()
         flightEnd = False
 
@@ -152,6 +152,8 @@ if __name__ == '__main__':
 #            currentLat = 51.52689
 
             # Receive Current GPS Coordinates
+            while get_coordinates('Get GPS coordinate\r\n') == (None,None):
+                print "waiting for GPS fix"
             currentLat,currentLon = get_coordinates('Get GPS coordinate\r\n')
 #            print "Current Latitude: ", currentLat,
 #            print "Current Longitude: ", currentLon 
