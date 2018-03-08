@@ -99,7 +99,7 @@ def main():
 ##            if bit_error == '99':
 ##                print('Not known or undetectable')
         if read_decode == 'OK\r\n':
-            break
+            continue
 
 SerialPort = serial.Serial("/dev/ttyUSB3", 115200, timeout = 1)
 
