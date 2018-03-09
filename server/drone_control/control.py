@@ -10,7 +10,7 @@ class Control(object):
     def __init__(self, drone_state_dict, pipe):
         self.pipe = pipe
         self.drone = ps_drone.Drone()
-        self.modem = ec25_modem.Modem("/dev/ttyUSB3") 
+        self.modem = ec25_modem.Modem("/dev/ttyUSB2") 
 
         self.control_state = ControlState()
         self.drone_state = DroneState()
