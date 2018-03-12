@@ -4,6 +4,7 @@ enum34==1.1.6
 eventlet==0.22.1
 funcsigs==1.0.2
 future==0.16.0
+gps3==0.33.3
 greenlet==0.4.13
 idna==2.6
 iso8601==0.1.12
