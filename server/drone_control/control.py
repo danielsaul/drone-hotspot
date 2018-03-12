@@ -3,6 +3,7 @@ import datetime
 import ps_drone
 import ec25_modem
 import utils
+from gps3.agps3threaded import AGPS3mechanism
 from controlstate import ControlState
 from dronestate import DroneState
 
@@ -10,7 +11,8 @@ class Control(object):
     def __init__(self, drone_state_dict, pipe):
         self.pipe = pipe
         self.drone = ps_drone.Drone()
-        self.modem = ec25_modem.Modem("/dev/ttyUSB2") 
+        self.modem = ec25_modem.Modem("/dev/ttyUSB2")
+        self.gps = AGPS3mechanism()
 
         self.control_state = ControlState()
         self.drone_state = DroneState()
@@ -22,6 +24,7 @@ class Control(object):
         self.drone_calibrated = False
         self.returning = False
         self.modem_connected = False
+        self.gps_l80 = True
 
         self.running = True
 
@@ -42,6 +45,13 @@ class Control(object):
             self.modem.turnOnGPS()
         else:
             print "Modem *not* connected."
+        
+        # Start GPS, if not using modem gps
+        if gps_l80:
+            self.gps.stream_data()
+            self.gps.run_thread()
+            print "GPS started."
+
 
         # Enter control loop
         self.loop()
@@ -155,6 +165,26 @@ class Control(object):
             self.drone_state.update_state(signal)
 
     def getGPS(self):
+        if gps_l80:
+            if gps.data_stream.mode > 1:
+                # Have fix
+                coords = {
+                    'location': {
+                        'latitude': gps.data_stream.lat,
+                        'longitude': gps.data_stream.lon
+                    }
+                }
+            else:
+                # No fix
+                coords = {
+                    'location': {
+                        'latitude': None,
+                        'longitude': None
+                    }
+                }
+            self.drone_state.update_state(coords)
+            return
+
         if not self.modem_connected:
             return
         
