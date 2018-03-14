@@ -24,7 +24,7 @@ class Control(object):
         self.drone_calibrated = False
         self.returning = False
         self.modem_connected = False
-        self.gps_l80 = True
+        self.gps_l80 = False
 
         self.running = True
 
@@ -126,11 +126,11 @@ class Control(object):
             angle -= 360
         elif angle < -180:
             angle += 180
-        self.drone.turnAngle(angle, 1, 0.1)
+        self.drone.turnAngle(angle, 0.5, 0.1)
 
         # Move forward and up at proportional speed
-        forward_speed = max(min(distance/30.0, 1.0), 0.1)
-        up_speed = max(min(altitude/10.0, 1.0), -1.0)
+        forward_speed = max(min(distance/30.0, 0.5), 0.1)
+        up_speed = max(min(altitude/10.0, 0.5), -0.5)
         self.drone.move(0.0, forward_speed, up_speed, 0.0)
 
     def flyManual(self):
