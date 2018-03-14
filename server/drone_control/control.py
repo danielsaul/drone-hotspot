@@ -63,6 +63,12 @@ class Control(object):
 
     def iteration(self):
 
+        # Retry connect to modem
+        if not self.modem_connected:
+            self.modem_connected = self.modem.start()
+            if self.modem_connected:
+                self.modem.turnOnGPS()
+        
         # Consume control messages from socket/app
         self.consumeControlQueue()
 
