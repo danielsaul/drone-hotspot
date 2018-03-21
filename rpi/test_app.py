@@ -47,7 +47,7 @@ def update_all(sid, data):
     #print(data)
     pass
 
-@sio.on('update_manual')
+@sio.on('update_location')
 def manual(sid, data):
     print(data)
 
