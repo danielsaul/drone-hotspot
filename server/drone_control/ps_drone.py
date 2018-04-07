@@ -105,8 +105,8 @@ class Drone(object):
 	def startup(self):
 		# Check for drone in the network and wake it up
 		try:
-			socket.socket().connect((self.DroneIP, 21))
-			socket.socket().close()
+                        s = socket.create_connection((self.DroneIP, 21))
+                        s.close()
 		except:
 			#self.printRed()
 			#print "Drone is not online"
