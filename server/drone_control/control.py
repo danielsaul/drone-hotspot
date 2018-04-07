@@ -119,7 +119,7 @@ class Control(object):
 
         distance = utils.distanceBetweenPoints(drone_loc, ftp['location'])
         altitude = ftp['altitude'] - (self.drone_state.state['altitude'])
-        if distance <= 3 and altitude <= 1:
+        if distance <= 3 and abs(altitude) <= 1:
             self.drone.stop()
             return
 
@@ -132,12 +132,17 @@ class Control(object):
             angle -= 360
         elif angle < -180:
             angle += 180
-        self.drone.turnAngle(angle, 0.5, 0.1)
+
+        if abs(angle) > 5:
+            self.drone.turnAngle(angle, 0.5, 0.1)
+            turn_speed = 0.0
+        else:
+            turn_speed = angle/10.0
 
         # Move forward and up at proportional speed
-        forward_speed = max(min(distance/30.0, 0.5), 0.1)
-        up_speed = max(min(altitude/10.0, 0.5), -0.5)
-        self.drone.move(0.0, forward_speed, up_speed, 0.0)
+        forward_speed = max(min(distance/50.0, 0.25), 0.05)     # 0.05 < x < 0.25
+        up_speed = max(min(altitude/10.0, 0.5), -0.5)           # -0.5 < x < 0.5
+        self.drone.move(0.0, forward_speed, up_speed, turn_speed)
 
     def flyManual(self):
         m = self.control_state.state['manual']
