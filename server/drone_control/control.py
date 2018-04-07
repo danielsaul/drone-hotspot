@@ -7,6 +7,7 @@ from gps3.agps3threaded import AGPS3mechanism
 from controlstate import ControlState
 from dronestate import DroneState
 
+
 class Control(object):
     def __init__(self, drone_state_dict, pipe):
         self.pipe = pipe
@@ -33,9 +34,9 @@ class Control(object):
         print "Waiting for drone"
         while not self.drone_connected:
             self.consumeControlQueue()
+            self.drone_state_dict.update(self.drone_state.state)
             self.startDrone()
-            time.sleep(3)
-        
+
         print "Drone connected."
 
         # Connect to modem
@@ -45,13 +46,12 @@ class Control(object):
             self.modem.turnOnGPS()
         else:
             print "Modem *not* connected."
-        
+
         # Start GPS, if not using modem gps
         if gps_l80:
             self.gps.stream_data()
             self.gps.run_thread()
             print "GPS started."
-
 
         # Enter control loop
         self.loop()
@@ -68,7 +68,7 @@ class Control(object):
             self.modem_connected = self.modem.start()
             if self.modem_connected:
                 self.modem.turnOnGPS()
-        
+
         # Consume control messages from socket/app
         self.consumeControlQueue()
 
@@ -87,13 +87,13 @@ class Control(object):
 
         # Get 4G Signal strength
         self.getSignal()
-        
+
         # Send updated drone state to socket/app
         self.drone_state_dict.update(self.drone_state.state)
 
         # Drone is flying, instruct it
         if self.drone_state.state['status'] == 'flying':
-            
+
             if self.returning:
                 # TODO: Return to home functionality
                 pass
@@ -141,7 +141,7 @@ class Control(object):
 
     def flyManual(self):
         m = self.control_state.state['manual']
-        
+
         if m['move']['x'] == 0.0 and m['move']['y'] == 0.0 and m['altitude'] == 0.0 and m['yaw'] == 0.0:
             self.drone.stop()
         else:
@@ -155,7 +155,7 @@ class Control(object):
             return
 
         distance = {
-            'distance': utils.distanceBetweenPoints(drone_loc, app_loc)
+            'distance': round(utils.distanceBetweenPoints(drone_loc, app_loc), 2)
         }
         self.drone_state.update_state(distance)
 
@@ -193,7 +193,7 @@ class Control(object):
 
         if not self.modem_connected:
             return
-        
+
         res = self.modem.getGPSCoordinates()
         if res:
             coords = {
@@ -208,7 +208,7 @@ class Control(object):
         n = self.drone.NavDataCount
         if self.prev_data_count >= n:
             return
-        
+
         self.prev_data_count = n
         new = {}
 
@@ -218,7 +218,7 @@ class Control(object):
         #    new['status'] = "flying"
         #elif self.drone.NavData['demo'][0][4]:  # Landing
         #    new['status'] = "landing"
-        
+
         if self.drone.State[0]:
             new['status'] = "flying"
         else:
@@ -240,7 +240,7 @@ class Control(object):
                 self.drone.land()
         else:
             self.app_disconnected_timer = None
-                
+
         return self.app_connected
 
     def startDrone(self):
@@ -253,21 +253,24 @@ class Control(object):
         self.drone.reset()
 
         # Wait for reset to complete
-        i=0
+        i = 0
         while self.drone.getBattery()[0] == -1:
             time.sleep(0.1)
             if i >= 20:
                 # Been more than 2 seconds, give up
                 self.drone.shutdown()
                 return
-            i+=1
+            i += 1
 
         # Navdata x times per sec
         self.drone.useDemoMode(True)
         self.drone.getNDpackage(["demo"])
 
         # Set to outdoor mode
-        self.drone.setConfig('control:outdoor', 'True') 
+        self.drone.setConfig('control:outdoor', 'True')
+
+        # Set to no hull
+        self.drone.setConfig('control:flight without shell', 'True')
 
         self.drone_connected = True
 
@@ -283,16 +286,16 @@ class Control(object):
         while self.drone.NavData["demo"][0][2]:
             time.sleep(0.1)
 
-        #if not self.drone_calibrated:
+        if not self.drone_calibrated:
             # Calibrate magnetometer
-        #    self.drone.mtrim()
-        #    self.drone_calibrated = True
+            self.drone.mtrim()
+            self.drone_calibrated = True
 
     def consumeControlQueue(self):
         action = None
-        
+
         # Loop over messages from phone app
-        while self.pipe.poll(): 
+        while self.pipe.poll():
             cmd, data = self.pipe.recv()
             if cmd == 'connected':
                 if data and not self.app_connected:
