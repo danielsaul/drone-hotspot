@@ -25,7 +25,7 @@ class Control(object):
         self.drone_calibrated = False
         self.returning = False
         self.modem_connected = False
-        self.gps_l80 = False
+        self.gps_l80 = True
 
         self.running = True
 
@@ -48,7 +48,7 @@ class Control(object):
             print "Modem *not* connected."
 
         # Start GPS, if not using modem gps
-        if gps_l80:
+        if self.gps_l80:
             self.gps.stream_data()
             self.gps.run_thread()
             print "GPS started."
@@ -176,13 +176,13 @@ class Control(object):
             self.drone_state.update_state(signal)
 
     def getGPS(self):
-        if gps_l80:
-            if gps.data_stream.mode > 1:
+        if self.gps_l80:
+            if self.gps.data_stream.mode > 1:
                 # Have fix
                 coords = {
                     'location': {
-                        'latitude': gps.data_stream.lat,
-                        'longitude': gps.data_stream.lon
+                        'latitude': self.gps.data_stream.lat,
+                        'longitude': self.gps.data_stream.lon
                     }
                 }
             else:
