@@ -3,6 +3,8 @@ import datetime
 import ps_drone
 import ec25_modem
 import utils
+import csv
+import os
 from gps3.agps3threaded import AGPS3mechanism
 from controlstate import ControlState
 from dronestate import DroneState
@@ -28,6 +30,12 @@ class Control(object):
         self.gps_l80 = True
 
         self.running = True
+
+        i = 0
+        while os.path.exists(os.path.expanduser("~/dronelog/log_%s.csv") % i):
+            i += 1
+        self.logfile = open(os.path.expanduser("~/dronelog/log_%s.csv") % i, "w")
+        self.logwriter = csv.writer(self.logfile)
 
     def start(self):
         # Connect to drone
@@ -90,6 +98,14 @@ class Control(object):
 
         # Send updated drone state to socket/app
         self.drone_state_dict.update(self.drone_state.state)
+
+        # Log to file
+        self.logwriter.writerow([
+            self.drone_state.state['location']['latitude'],
+            self.drone_state.state['location']['longitude'],
+            self.drone_state.state['altitude'],
+            self.drone_state.state['signal']
+        ])
 
         # Drone is flying, instruct it
         if self.drone_state.state['status'] == 'flying':
