@@ -110,28 +110,27 @@ class Control(object):
                 # TODO: Autonomous
                 pass
 
-    def flyToPoint(self):
-        ftp = self.control_state.state['flytopoint']
-        drone_loc = self.drone_state.state['location']
-        if not ftp['location'] or not ftp['altitude'] or not drone_loc['latitude']:
+    def flyToCoords(self, drone_loc, drone_alt, target_loc, target_alt):
+        if not drone_loc['latitude']:
             self.drone.stop()
-            return
+            return False
 
-        distance = utils.distanceBetweenPoints(drone_loc, ftp['location'])
-        altitude = ftp['altitude'] - (self.drone_state.state['altitude'])
+        distance = utils.distanceBetweenPoints(drone_loc, target_loc)
+        altitude = target_alt - drone_alt
         if distance <= 3 and abs(altitude) <= 1:
+            # Reached destination
             self.drone.stop()
-            return
+            return True
 
         # Turn to correct bearing
         current_bearing = self.drone.NavData["demo"][2][2]
         current_bearing = (current_bearing + 360) % 360
-        target_bearing = utils.bearingBetweenPoints(drone_loc, ftp['location'])
+        target_bearing = utils.bearingBetweenPoints(drone_loc, target_loc)
         angle = target_bearing - current_bearing
         if angle > 180:
             angle -= 360
         elif angle < -180:
-            angle += 180
+            angle += 360
 
         if abs(angle) > 5:
             self.drone.turnAngle(angle, 0.5, 0.1)
@@ -143,6 +142,19 @@ class Control(object):
         forward_speed = max(min(distance/50.0, 0.1), 0.05)     # 0.05 < x < 0.25
         up_speed = max(min(altitude/10.0, 0.5), -0.5)           # -0.5 < x < 0.5
         self.drone.move(0.0, forward_speed, up_speed, turn_speed)
+
+        return False
+
+    def flyToPoint(self):
+        ftp = self.control_state.state['flytopoint']
+        drone_loc = self.drone_state.state['location']
+        if not ftp['location'] or not ftp['altitude'] or not drone_loc['latitude']:
+            self.drone.stop()
+            return
+        drone_alt = self.drone_state.state['altitude']
+
+        self.flyToCoords(drone_loc, drone_alt, ftp['location'], ftp['altitude'])
+
 
     def flyManual(self):
         m = self.control_state.state['manual']
