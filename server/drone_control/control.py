@@ -140,7 +140,7 @@ class Control(object):
             turn_speed = angle/10.0
 
         # Move forward and up at proportional speed
-        forward_speed = max(min(distance/50.0, 0.25), 0.05)     # 0.05 < x < 0.25
+        forward_speed = max(min(distance/50.0, 0.1), 0.05)     # 0.05 < x < 0.25
         up_speed = max(min(altitude/10.0, 0.5), -0.5)           # -0.5 < x < 0.5
         self.drone.move(0.0, forward_speed, up_speed, turn_speed)
 
