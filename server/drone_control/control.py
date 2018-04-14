@@ -349,6 +349,5 @@ class Control(object):
         if action == 'return' and self.drone_state.state['status'] == 'flying':
             self.returning = True
         if action == 'abort' and self.drone_state.state['status'] == 'flying':
-            drone.thrust(0,0,0,0)
-            self.running = False
-
+            self.drone.thrust(0, 0, 0, 0)
+            self.drone.reset()
