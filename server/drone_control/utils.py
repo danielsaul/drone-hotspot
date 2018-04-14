@@ -1,5 +1,18 @@
 from math import degrees, radians, sin, cos, asin, atan2, sqrt
 
+def displaceLatLon(loc, bearing, distance):
+    bearing = radians(bearing)
+    dx = distance * sin(bearing)
+    dy = distance * cos(bearing)
+    delta_lon = dx/(111320*cos(radians(loc['latitude'])))
+    delta_lat = dy/110540
+    final_loc = {
+        'longitude': loc['longitude'] + delta_lon,
+        'latitude':  loc['latitude'] + delta_lat
+    }
+    return final_loc
+
+
 def distanceBetweenPoints(a, b):
     
     # Convert to radians from decimal degrees

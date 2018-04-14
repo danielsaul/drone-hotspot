@@ -28,6 +28,9 @@ class Control(object):
         self.returning = False
         self.modem_connected = False
         self.gps_l80 = True
+        self.autonomous_coords = None
+        self.autonomous_sigs = None
+        self.autonomous_loc = None
 
         self.running = True
 
@@ -160,6 +163,39 @@ class Control(object):
         self.drone.move(0.0, forward_speed, up_speed, turn_speed)
 
         return False
+
+    def flyAutonomous(self):
+        radius = 5
+        bearing = 360/3
+        altitude = 1
+        drone_loc = self.drone_state.state['location']
+        drone_alt = self.drone_state.state['altitude']
+
+        if self.autonomous_coords is None:
+            self.autonomous_coords = []
+            self.autonomous_sigs = []
+            for i in range(3):
+                loc = utils.displaceLatLon(drone_loc, i*bearing, radius)
+                self.autonomous_coords.append(loc)
+
+        n = len(self.autonomous_sigs)
+        if n < len(self.autonomous_coords):
+            res = self.flyToCoords(drone_loc, drone_alt, self.autonomous_coords[n], altitude)
+            if res:
+                sig = self.drone_state.state['signal']
+                self.autonomous_sigs.append(sig)
+            return
+
+        if self.autonomous_loc is None:
+            self.autonomous_loc = {
+                'latitude': 0.0, 'longitude': 0.0
+            }
+            for i in range(3):
+                weight = self.autonomous_sigs[i] / sum(self.autonomous_sigs)
+                self.autonomous_loc['latitude'] += weight * self.autonomous_coords[i]['latitude']
+                self.autonomous_loc['longitude'] += weight * self.autonomous_coords[i]['longitude']
+
+        res = self.flyToCoords(drone_loc, drone_alt, self.autonomous_loc, altitude)
 
     def flyToPoint(self):
         ftp = self.control_state.state['flytopoint']
