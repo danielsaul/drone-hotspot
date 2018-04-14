@@ -123,11 +123,10 @@ class Control(object):
 
             elif self.control_state.state['mode'] == 'flytopoint':
                 self.flyToPoint()
-                pass
 
             elif self.control_state.state['mode'] == 'autonomous':
-                # TODO: Autonomous
-                pass
+                # Autonomous
+                self.flyAutonomous()
 
     def flyToCoords(self, drone_loc, drone_alt, target_loc, target_alt):
         if not drone_loc['latitude']:
