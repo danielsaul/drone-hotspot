@@ -196,6 +196,11 @@ class Control(object):
 
         res = self.flyToCoords(drone_loc, drone_alt, self.autonomous_loc, altitude)
 
+    def resetAutonomous(self):
+        self.autonomous_loc = None
+        self.autonomous_coords = None
+        self.autonomous_sigs = None
+
     def flyToPoint(self):
         ftp = self.control_state.state['flytopoint']
         drone_loc = self.drone_state.state['location']
@@ -343,6 +348,8 @@ class Control(object):
         self.drone_connected = True
 
     def takeoffDrone(self):
+        self.resetAutonomous()
+
         if not self.drone_calibrated:
             # Calibrate level and gyro
             self.drone.trim()
