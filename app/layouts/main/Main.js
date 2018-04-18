@@ -28,7 +28,7 @@ import ManualMode from '../../components/ManualMode'
 import FlyToPointMode from '../../components/FlyToPointMode'
 import AutonomousMode from '../../components/AutonomousMode'
 
-import { setmode, updatemanual, updateflytopoint } from '../../reducers/control'
+import { setmode, updatemanual, updateflytopoint, updateautonomous } from '../../reducers/control'
 import { updateip } from '../../reducers/droneip'
 
 import styles from './styles';
@@ -43,6 +43,9 @@ const mapDispatchToProps = dispatch => ({
   },
   flytopointChange: flytopoint => {
     dispatch(updateflytopoint(flytopoint))
+  },
+  autonomousChange: autonomous => {
+    dispatch(updateautonomous(autonomous))
   },
   buttonPress: type => () => {
     dispatch({type})
@@ -174,6 +177,14 @@ class Main extends Component{
 
   altitudePicker = (x) => {
     this.props.flytopointChange({altitude: x});
+  }
+
+  autoAltitudePicker = (x) => {
+    this.props.autonomousChange({altitude: x});
+  }
+
+  autoRadiusPicker = (x) => {
+    this.props.autonomousChange({radius: x});
   }
 
   render(){
