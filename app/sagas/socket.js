@@ -109,6 +109,9 @@ const send = function* (socket) {
       case 'UPDATE_FLYTOPOINT':
         socket.emit('update_flytopoint', action.flytopoint);
         break;
+      case 'UPDATE_AUTONOMOUS':
+        socket.emit('update_autonomous', action.autonomous);
+        break;
     };
   }
 };
