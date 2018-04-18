@@ -205,6 +205,8 @@ class Main extends Component{
             >
               {this.props.control.mode == "flytopoint" && this.props.control.flytopoint.location != null ? this.markerToFlyTo() : null}
               {this.props.control.mode == "flytopoint" && this.props.control.flytopoint.location != null ? this.lineToFlyTo() : null}
+              {this.props.control.mode == "autonomous" ? this.props.drone.autonomous.points.map((loc, i) => (<MapView.Marker coordinate={loc} key={i} />)) : null}
+              {this.props.control.mode == "autonomous" && this.props.drone.autonomous.final != null ? <MapView.Marker coordinate={this.props.drone.autonomous.final} pinColor="#00f" /> : null}
               {this.markerDrone()}
             </MapView>
           </View>

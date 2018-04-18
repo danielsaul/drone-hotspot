@@ -10,7 +10,11 @@ const initialDrone = {
   distance: 0.0,
   speed: 0.0,
   battery: 0,
-  signal: 0
+  signal: 0,
+  autonomous: {
+    points: [],
+    final: null
+  }
 };
 
 export const UPDATE_DRONE = 'UPDATE_DRONE';
