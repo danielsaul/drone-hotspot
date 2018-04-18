@@ -23,7 +23,10 @@ class ControlState(object):
                 'altitude': None,
                 'location': None
             },
-            'autonomous': None,
+            'autonomous': {
+                'altitude': None,
+                'radius': None
+            },
         }
 
     def update_state(self, new):

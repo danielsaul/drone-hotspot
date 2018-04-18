@@ -162,11 +162,15 @@ class Control(object):
         return False
 
     def flyAutonomous(self):
-        radius = 5
+        radius = self.control_state.state['autonomous']['radius']
         bearing = 360/3
-        altitude = 1
+        altitude = self.control_state.state['autonomous']['altitude']
         drone_loc = self.drone_state.state['location']
         drone_alt = self.drone_state.state['altitude']
+
+        if not radius or not altitude:
+            self.drone.stop()
+            return
 
         if self.drone_state.state['autonomous']['points'] is None:
             self.drone_state.state['autonomous']['points'] = []
