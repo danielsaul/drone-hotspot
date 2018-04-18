@@ -26,13 +26,14 @@ import SpeedStatus from '../../components/SpeedStatus'
 import FlightButtons from '../../components/FlightButtons'
 import ManualMode from '../../components/ManualMode'
 import FlyToPointMode from '../../components/FlyToPointMode'
+import AutonomousMode from '../../components/AutonomousMode'
 
 import { setmode, updatemanual, updateflytopoint } from '../../reducers/control'
 import { updateip } from '../../reducers/droneip'
 
 import styles from './styles';
 
-const mapStateToProps = s => ({ connection: s.connection, droneip: s.droneip, drone: s.drone, control: { mode: s.control.mode, flytopoint: s.control.flytopoint } });
+const mapStateToProps = s => ({ connection: s.connection, droneip: s.droneip, drone: s.drone, control: { mode: s.control.mode, flytopoint: s.control.flytopoint, autonomous: s.control.autonomous } });
 const mapDispatchToProps = dispatch => ({
   modeChange: mode => {
     dispatch(setmode(mode))
@@ -231,8 +232,17 @@ class Main extends Component{
                 altitudeValue={this.props.control.flytopoint.altitude}
                 altitudePickerChange={this.altitudePicker}
               />
-          : null } 
-
+          : null }
+          {this.props.control.mode == "autonomous" ?
+              <AutonomousMode
+                min={1}
+                max={100}
+                altitudeValue={this.props.control.autonomous.altitude}
+                altitudePickerChange={this.autoAltitudePicker}
+                radiusValue={this.props.control.autonomous.radius}
+                radiusPickerChange={this.autoRadiusPicker}
+              />
+          : null }
         </Content>
 
         <Footer>
