@@ -15,7 +15,11 @@ class DroneState(object):
             'distance': None,
             'speed': None,
             'battery': None,
-            'signal': None
+            'signal': None,
+            'autonomous': {
+                'points': None,
+                'final': None
+            }
         }
 
     def update_state(self, new):

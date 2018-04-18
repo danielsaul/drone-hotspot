@@ -28,9 +28,7 @@ class Control(object):
         self.returning = False
         self.modem_connected = False
         self.gps_l80 = True
-        self.autonomous_coords = None
         self.autonomous_sigs = None
-        self.autonomous_loc = None
 
         self.running = True
 
@@ -170,35 +168,35 @@ class Control(object):
         drone_loc = self.drone_state.state['location']
         drone_alt = self.drone_state.state['altitude']
 
-        if self.autonomous_coords is None:
-            self.autonomous_coords = []
+        if self.drone_state.state['autonomous']['points'] is None:
+            self.drone_state.state['autonomous']['points'] = []
             self.autonomous_sigs = []
             for i in range(3):
                 loc = utils.displaceLatLon(drone_loc, i*bearing, radius)
-                self.autonomous_coords.append(loc)
+                self.drone_state.state['autonomous']['points'].append(loc)
 
         n = len(self.autonomous_sigs)
-        if n < len(self.autonomous_coords):
-            res = self.flyToCoords(drone_loc, drone_alt, self.autonomous_coords[n], altitude)
+        if n < len(self.drone_state.state['autonomous']['points']):
+            res = self.flyToCoords(drone_loc, drone_alt, self.drone_state.state['autonomous']['points'][n], altitude)
             if res:
                 sig = self.drone_state.state['signal']
                 self.autonomous_sigs.append(sig)
             return
 
-        if self.autonomous_loc is None:
-            self.autonomous_loc = {
+        if self.drone_state.state['autonomous']['final'] is None:
+            self.drone_state.state['autonomous']['final'] = {
                 'latitude': 0.0, 'longitude': 0.0
             }
             for i in range(3):
                 weight = self.autonomous_sigs[i] / sum(self.autonomous_sigs)
-                self.autonomous_loc['latitude'] += weight * self.autonomous_coords[i]['latitude']
-                self.autonomous_loc['longitude'] += weight * self.autonomous_coords[i]['longitude']
+                self.drone_state.state['autonomous']['final']['latitude'] += weight * self.drone_state.state['autonomous']['points'][i]['latitude']
+                self.drone_state.state['autonomous']['final']['longitude'] += weight * self.drone_state.state['autonomous']['points'][i]['longitude']
 
-        res = self.flyToCoords(drone_loc, drone_alt, self.autonomous_loc, altitude)
+        res = self.flyToCoords(drone_loc, drone_alt, self.drone_state.state['autonomous']['final'], altitude)
 
     def resetAutonomous(self):
-        self.autonomous_loc = None
-        self.autonomous_coords = None
+        self.drone_state.state['autonomous']['final'] = None
+        self.drone_state.state['autonomous']['points'] = None
         self.autonomous_sigs = None
 
     def flyToPoint(self):
