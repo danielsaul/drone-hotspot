@@ -368,6 +368,8 @@ class Control(object):
             self.drone.mtrim()
             self.drone_calibrated = True
 
+	self.drone.stop()
+
     def consumeControlQueue(self):
         action = None
 
